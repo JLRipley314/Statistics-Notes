@@ -1,0 +1,143 @@
+%==============================================================================
+\section{Bayes factor}
+
+To briefly review, in \textbf{parameter estimation}, 
+one fintds the best fit parameters from the data given a model $h\left(\theta\right)$.
+What ``best fit'' means depends on the test statistic being used. 
+Here we are concerend \textbf{Model selection}, which concerns finding which
+model better fits the data.
+In order to find the better fitting model, we compute the \textbf{Bayes factor},
+which is the ratio of the evidence for each model 
+\begin{align}
+    \label{eq:def-Bayes-factor}
+    B_{2,1}
+    \equiv
+    \frac{P\left(d|H_2\right)}{P\left(d|H_1\right)}
+    .
+\end{align}
+As a basic rule of thumb, if $B_{2,1}\sim1$, then neither hypothesis is preferred
+compared to the other.
+If $B_{2,1}\ll1$, then model $1$ is preferred, while if $B_{2,1}\gg1$, then model $2$ is preferred.
+There are several subtleties to this interpretation, which we discuss more below.
+
+If a model $H$ has parameters $\btheta$, we can compute the likelihood 
+by marginalizing over the models parameters for the likelihood
+(c.f. ~\eqref{eq:evidence-as-marginalization})
+\begin{align}
+    P\left(d|H\right)
+    =
+    \int d\theta P\left(d|\btheta,H\right) P\left(\btheta,H\right)
+    .
+\end{align}
+Doing this integral is typically challenging, since the dimension of the
+parameter space is very large, and the likelihood $P\left(d|\btheta,H\right)$
+can be complicated (its functional form can only be guessed at in general).
+There are various approximations for how to 
+compute this integral (analytically and numerically).
+
+%==============================================================================
+\section{Nested models and the Savage-Dickey ratio}
+
+We consider a method to compute the Bayes factor for nested models. 
+Consider a model $M_1$ which is nested in a model $M_2$.
+The model $M_2$ has one more parameter than $M_1$ 
+(generalizing to more parameters is straightforward).
+We call the extra parameter $\lambda$.
+We call the rest of the parameters $\btheta$ nuisance parameters,
+as they do not distinguish the two models. 
+In this setup we have that
+\begin{align}
+    P\left(d|\btheta,M_1\right)
+    =
+    P\left(d|\btheta,\lambda=\lambda_0,M_2\right)
+    ,
+\end{align}
+where $\lambda_0$ is a constant.
+
+The evidence of $M_1$ is
+\begin{align}
+    P\left(d|M_1\right)
+    =&
+    P\left(d|\lambda=\lambda_0,M_2\right)
+    \nonumber\\
+    =&
+    \frac{
+        P\left(\lambda=\lambda_0|d,M_2\right)P\left(d|M_2\right)
+    }{
+        P\left(\lambda=\lambda_0|M_2\right)
+    } 
+    .
+\end{align}
+We then see that the Bayes factor is
+\begin{align}
+    B_{2,1}
+    =&
+    \frac{P\left(d|H_2\right)}{P\left(d|H_1\right)}
+    \nonumber\\
+    =&
+    \frac{
+        P\left(\lambda=\lambda_0|M_2\right)
+    }{
+        P\left(\lambda=\lambda_0|d,M_2\right)
+    }
+    .
+\end{align}
+This is the \textbf{Savage-Dickey ratio} \cite{dickey-lientz-savage-dicke-ratio}.
+We can also write this as
+\begin{align}
+    B_{2,1}
+    =
+    \left(\frac{\mathrm{prior}}{\mathrm{posterior}}\right)_{\lambda=\lambda_0}
+    .
+\end{align}
+The advantage of this method is that you only need to compute the
+evidence of the model $M_2$, instead of computing the evidence of both 
+$M_2$ and the nested model $M_1$.
+Also, you do not need to divide two noisy numbers (the evidence of
+model 1 and model 2), you only need to divide a known number
+(the prior) by one noisy number (the evidence of model 2).
+
+
+%==============================================================================
+\section{Occam factor}
+
+For more discussion see for examle \cite{Mackay-information-theory-book}.
+We consider another measure of the power of a model to explain a given data set.
+The \textbf{Occam factor} is defined to be
+\begin{align}
+    O
+    \equiv&
+    \frac{\mathrm{posterior\; volume}}{\mathrm{prior\; volume}}
+    \sim 
+    \frac{\sigma_{\btheta|d}}{\sigma_{\btheta}}
+    .
+\end{align}
+By volume, we mean the integral over parameter space of the
+probability distribution.
+Here $\sigma_{\btheta}$ is some measure of the variance of the
+prior probability distribution, and $\sigma_{\btheta|d}$ is variance
+of the posterior probability distribution.
+The Occam factor measures how much the data shrinks the probability
+distribution as compared to its prior distribution.
+If the Occam factor is $\sim 1$, the data doesn't constrain
+the model well, since the variance parameters of the model do not shrink.
+We can interpret this as saying that the model does not explain the 
+observed data well either.
+We can write
+\begin{align}
+    \mathrm{evidence}
+    \sim
+    \mathrm{max\;likelihood}
+    \times
+    \mathrm{occam\; factor}
+    .
+\end{align}
+From this, we see that 
+the Occam factor accounts for the fact that models with more parameters
+can fit data better, and should be penalized for having more parameters.
+
+For example, consider two hypothesis: $H_1$ and $H_2$.
+Say they are nested: $H_2\left(\btheta\right) \sim H_1\left(\btheta,\lambda\right)$.
+If $\lambda$ is unconstrained, $O\sim 1$, and if $\lambda$ is well-constrained,
+$O\ll1$.
+

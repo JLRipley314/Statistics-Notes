@@ -1,0 +1,138 @@
+%===============================================================================
+\section{Brief review of complex analysis}
+
+For a function $A\left(t\right)$ that is singular at infinity, 
+the \textbf{Cauchy principal value} is defined to be
+\begin{align}
+    \mathrm{p.v.}\int_{-\infty}^{\infty} dt A\left(t\right)
+    =
+    \lim_{T\to\infty}\int_{-T}^{T}dt A\left(t\right)
+    .
+\end{align}
+For complex-valued functions $A\left(z\right)$ that are singular at a point $z_0$, 
+the Cachy principal value is defined to be the limit of the deformation of the integral 
+$C$ by a disk of radius $\epsilon$ centered around $z_0$
+\begin{align}
+    \mathrm{p.v.}\int_{C} dz A\left(z\right)
+    =
+    \lim_{\epsilon\to0^+}
+        \int_{C\left(\epsilon\right)}dz A\left(z\right)
+    .
+\end{align}
+This can also be written as
+\begin{align}
+    \mathrm{p.v.}\int_{C} dz A\left(z\right)
+    =
+    \lim_{\epsilon\to0^+}
+        \left(
+            \int_{-\infty}^{z_0-\epsilon}dz A\left(z\right)
+            +
+            \int_{z_0+\epsilon}^{\infty}dz A\left(z\right)
+        \right)
+    .
+\end{align}
+%===============================================================================
+\section{The Fourier transform}
+
+We briefly review Fourier transforms, along with a helpful transforms that
+are used in signal processing.
+
+The one-dimensional \textbf{Fourier transform} and its inverse are
+\begin{subequations}
+\begin{align}
+    A\left(t\right)
+    =
+    \mathcal{F}^{-1}\left[\tilde{A}\left(f\right)\right]\left(t\right)
+    =&
+    \int_{-\infty}^{\infty}df e^{ 2\pi i ft} \tilde{A}\left(f\right)
+    ,\\
+    \tilde{A}\left(f\right)
+    =
+    \mathcal{F}\left[A\left(t\right)\right]\left(f\right)
+    =&
+    \int_{-\infty}^{\infty}df e^{-2\pi i ft} A\left(t\right)
+    . 
+\end{align}
+\end{subequations}
+
+The Fourier representation of the Dirac delta function $\delta\left(t\right)$ is
+\begin{align}
+    \tilde{\delta}\left(f\right)
+    =
+    \int_{-\infty}^{\infty}df e^{- 2\pi i f t} \delta\left(t\right)
+    =
+    1
+    .
+\end{align}
+
+The \textbf{convolution} of two functions $A(t)$ and $B(t)$ are
+\begin{align}
+    \left(A* B\right)\left(t\right)
+    \equiv
+    \int_{-\infty}^{\infty}d\tau A\left(\tau\right)B\left(t-\tau\right)
+    = 
+    \int_{-\infty}^{\infty}d\tau A\left(t-\tau\right)B\left(\tau\right)
+    .
+\end{align}
+The Fourier transform of the convlution is
+\begin{align}
+    \mathcal{F}\left[\left(A* B\right)\left(t\right)\right]\left(f\right)
+    =&
+    \int_{-\infty}^{\infty}d\tau \int_{-\infty}^{\infty}df \int_{-\infty}^{\infty}df^{\prime}
+        e^{2\pi i f\tau} e^{2\pi i f^{\prime}\left(t-\tau\right)}
+        \tilde{A}\left(f\right)\tilde{B}\left(f^{\prime}\right)
+    \nonumber\\
+    =&
+    \int_{-\infty}^{\infty}df e^{2\pi i ft}
+        \tilde{A}\left(f\right)\tilde{B}\left(f\right)
+    .
+\end{align}
+That is, convolution in real space is multiplication in frequency space.
+
+%===============================================================================
+\section{The Laplace transform}
+
+The \textbf{Laplace transform} of a function $A(t)$ is
+\begin{subequations}
+\begin{align}
+    A\left(t\right)
+    =
+    \mathcal{L}^{-1}\left[A\left(\lambda\right)\right]\left(t\right)
+    &=
+    \frac{1}{2\pi i}\lim_{T\to\infty}
+    \int_{\gamma-iT}^{\gamma+iT}d\lambda e^{\lambda t}\tilde{A}\left(\lambda\right)
+    ,\\
+    \tilde{A}\left(t\right)
+    =
+    \mathcal{L}\left[A\left(t\right)\right]\left(\lambda\right)
+    &=
+    \int_0^{\infty}dte^{-\lambda t}A\left(t\right)
+    ,
+\end{align}
+\end{subequations}
+Here $\gamma$ is a real number so that the contour path of integration is in
+the region of convergence of $\tilde{A}\left(\lambda\right)$.
+In effect, the inverse Laplace transform is like the inverse Fourier transform.
+%===============================================================================
+\section{The Hilbert transform}
+
+The \textbf{Hilbert transform} of a function $A\left(t\right)$ is
+\begin{subequations}
+\begin{align}
+    A\left(t\right)
+    =
+    \mathcal{H}^{-1}\left[\tilde{A}\left(\tau\right)\right]\left(t\right)
+    &
+    =
+    -
+    \frac{1}{\pi}\mathrm{p.v.}\int_{-\infty}^{\infty}d\tau\frac{\tilde{A}\left(\tau\right)}{t-\tau}
+    ,\\
+    \tilde{A}\left(\tau\right)
+    =
+    \mathcal{H}\left[A\left(t\right)\right]\left(\tau\right)
+    &
+    =
+    \frac{1}{\pi}\mathrm{p.v.}\int_{-\infty}^{\infty}dt\frac{A\left(t\right)}{\tau-t}
+    .
+\end{align}
+\end{subequations}

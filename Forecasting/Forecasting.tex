@@ -1,0 +1,169 @@
+When it is hard or expensive to collect data, it can be useful to 
+predict (or forecast) how well parameters of a given model could be measured
+with simulated data.
+Forecasting can inform whether a a more in-depth analysis of a model on real
+data is worth doing--that is whether or not real data could place any meaningful
+measurement of the parameters of a model.
+Here we review several semi-analytic methods for forecasting. 
+
+%===============================================================================
+\section{Injection analysis}
+
+We consider a model $P\left(\bx|\btheta\right)$ with prior $P\left(\btheta\right)$.
+For whatever reason, we do not have any data $\bx$.
+For example, it may be expensive to collect data, so we do not want to collect
+it until we have some confidence that we could meaningfully measure parameters
+in the model $P\left(\bx|\btheta\right)$.
+An injection analysis involves determining the distribution of  
+$P\left(\btheta_i|\bx_0\right)$ where
+$\bx_0$ is fake (generated) data set that we hope represents a characteristic realization
+of the data we may measure.
+In other words, we have ``injected'' the data $\bx_0$ into our model.
+If we can meaningfully measure/determine the parameters $\btheta$ given $\bx_0$,
+it may be worth collecting real data/observations.
+
+A reasonable choice for $\bx_0$ is to choose $\bx_0$ to maximize $P\left(\bx|\btheta_0\right)$,
+where $\btheta_0$ are the values of parameters that you expect to hope to measure. 
+In equations we choose $\bx_0$ to satisfy
+\begin{align}
+    \forall \bx \; P\left(\bx|\btheta_0\right) \leq P\left(\bx_0|\btheta_0\right)
+\end{align}
+Sometimes it is worth adding a realization of noise, $\bn$, to $\bx_0$; we call this
+\begin{align}
+    \bx_{0,n} = \bx_0 + \bn
+\end{align}
+For example, the components of $\bn$ may be drawn from a Gaussian with zero
+mean and unit diagonal covariance matrix (although the choice of $\bn$ will depend
+on your understanding nature of the experiment/observation).
+It is common to $\bn=0$, which can be considered the ``best'' possible situation for
+recovering parameters.
+We then inject $\bx_{0,n}$ into the likelihood, and sample on $\btheta$,
+that is we consider
+\begin{align}
+    \label{eq:injection-bayes-theorem}
+    P\left(\btheta|\bx_{0,n}\right)
+    =
+    \frac{P\left(\bx_{0,n}|\btheta\right)P\left(\btheta\right)}{P\left(\bx_{0,n}\right)}
+    .
+\end{align}
+The probability distribution $P\left(\btheta|\bx_{0,n}\right)$ gives us an understanding
+of how well we could measure $\btheta_0$, given (near, if $\bn\neq0$) optimal data.
+Moreover, it can give us an idea of how the different components of $\btheta$ may
+be correlated with one another.
+
+To determine $P\left(\btheta|\bx\right)$, we either need to directly
+sample $\btheta$ from \eqref{eq:injection-bayes-theorem}, or use an approximation method.
+%===============================================================================
+\section{Fisher forecasting}
+
+Injection analysis with a multivariate normal approximation for the likelihood is called
+\textbf{Fisher forecasting}.
+Let $\hat{\btheta}$ be the maximum likelihood estimator for $\btheta$.
+Under appropriate regularity conditions, in the limit of a large number of observations,
+$P\left(\bx|\hat{\btheta}\right)$ tends towards the normal
+distribution (in parameter space), with mean $\hat{\btheta}$ 
+and covariance matrix 
+\begin{align}
+    \label{eq:bvm-thm-cov}
+    \Sigma^{(F)}_{ij}= \frac{1}{N}F^{-1}_{ij}\left(\hat{\btheta}\right)
+    .
+\end{align}
+Here $N$ is the number of observations.
+This is known as the \textbf{Bernstein–von Mises theorem}. 
+We provide a proof of this result in Appendix \ref{chap:probability-theory}.
+
+Estimating the maximum likelihood estimator $\hat{\btheta}$ is a challenging task of its own, 
+that we do no explore further here.
+Using the Bernstein-von Mises theorem, the posterior probability distribution near $\hat{\btheta}$, 
+in the limit of a large number of observations, is approximately 
+\begin{align}
+    P\left(\btheta|\bx\right)
+    = 
+    \frac{\pi\left(\btheta\right)}{\mathcal{Z}\left(\bx,M\right)}
+    \exp\left[
+        -
+        \frac{1}{2}
+        \left(\theta-\hat{\theta}\right)^i
+        F_{ij}
+        \left(\theta-\hat{\theta}\right)^j
+    \right]
+    .
+\end{align}
+If we assume a Gaussian prior on the parameters $\btheta$, then the
+posterior is a multivariate Gaussian with an inverse covariance matrix given by
+\begin{align}
+    \label{eq:Fisher-injection-inverse-covariance}
+    \Sigma_{ij}^{-1} 
+    = 
+    N F_{ij} 
+    + 
+    \frac{1}{\sigma_i^2}\delta_{ij} 
+    .
+\end{align}
+That is, the posterior probability distribution within this approximation is
+\begin{align}
+    P\left(\btheta|\bx\right)
+    \approx
+    \frac{1}{\sqrt{\left(2\pi\right)^k\det\Sigma}}
+    \exp\left[
+        -
+        \frac{1}{2}
+        \left(\theta-\hat{\theta}\right)^i
+        \Sigma^{-1}_{ij}
+        \left(\theta-\hat{\theta}\right)^j
+    \right]
+    ,
+\end{align}
+where $k$ is the dimensionality of $\btheta$, that is the number of parameters.
+
+To perform a \textbf{Fisher forecast} for a given model $P\left(\bx|\btheta\right)$, 
+we pick a set of parameters $\btheta_0$, and then compute the Fisher information matrix
+\eqref{eq:Fisher-information}.
+That is, we assume that $\btheta_0$ are the ``true'' model parameters, 
+and also are the maximum likelihood estimators.
+We then ``inject'' those parameters into the likelihood, which we approximate as a
+multivariate Gaussian with inverse covariance matrix given by 
+\eqref{eq:Fisher-injection-inverse-covariance}.
+This analysis can be useful to determine the strength of correlation between different
+the different components of $\theta^i$ (through the off-diagonal terms in $\Sigma_{ij}$).
+The diagonal of the covariance matrix additionally gives us the 1-$\sigma$
+error bars of the parameters.
+If we could make $N$ measurements of the same data, each element in the
+covariance matrix would decrease $1/N$, as follows from \eqref{eq:bvm-thm-cov}.
+We see that the Fisher matrix can also give us a rough estimate of the number
+of observations $N$ that are needed to make a $n-\sigma$ observation of
+a parameter $\theta^i$.
+
+Fisher forecasting is sometimes said to provide an optimal estimate of the
+variance of the parameters in a given measurement.
+This statement is justified by the \textbf{Cram\'{e}r-Rao bound}, which states
+that the covariance matrix of an unbiased estimator for $\btheta$, $\bTheta$, 
+(that is $\mathbb{E}\left[\bTheta\left(\bx\right)\right]=\btheta$)
+is bounded from below by the inverse of the Fisher information matrix
+\begin{align}
+    \label{eq:cramer-rao-unbiased}
+    \Sigma_{ij}\Big|_{\btheta=\bmu_{\btheta}} 
+    \geq 
+    F_{ij}^{-1}\left(\btheta\right)
+    .
+\end{align}
+This bound should be interpreted with caution though, as \eqref{eq:cramer-rao-unbiased}
+only holds for unbiased estimators to the parameters $\btheta$.
+Consider a general estimator $\bTheta\left(\bx\right)$, and denote its expectation by
+\begin{align}
+    \mathbb{E}\left[\bTheta\left(\bx\right)\right]
+    =
+    \bpsi\left(\btheta\right)
+    .
+\end{align}
+The Cram\'{e}r-Rao bound states that
+\begin{align}
+    \label{eq:cramer-rao-biased}
+    \nabla_{\theta_m}\psi_i
+    \nabla_{\theta_n}\psi_j
+    F_{mn}^{-1}\left(\btheta\right) 
+    .
+\end{align}
+If $\bTheta$ is an unbiased estimator ($\bpsi=\btheta$), then
+\eqref{eq:cramer-rao-biased} reduces to \eqref{eq:cramer-rao-unbiased}.
+We outline a proof of \eqref{eq:cramer-rao-biased} in Appendix \ref{chap:probability-theory}.

@@ -1,0 +1,223 @@
+While most often we want to compute integrals of the posterior
+probability distribution (for example, to compute the mean or
+covariance matrix of the posterior), sometimes it is informative to
+simply compute its maximum, or even just the maximum of the likelihood. 
+Again we consider the posterior  
+\begin{align}
+    \label{eq:Bayes-theorem-optmization}
+    P\left(\btheta|\bx\right)
+    =
+    \frac{
+        \mathcal{L}\left(\btheta\right)\pi\left(\btheta\right)
+    }{
+        \mathcal{Z}\left(x\right)
+    }
+    ,
+\end{align}
+The value of $\btheta$ that maximizes $\mathcal{L}\left(\btheta\right)$ is
+the \textbf{maximum likelihood estimator (MLE)}, and the value of
+$\btheta$ that maximizes
+$\mathcal{L}\left(\btheta\right)\pi\left(\btheta\right)$
+is the \textbf{maximum a posteriori probability estimator (MAP)}.
+Note that the MLE and MAP do not gives us any knowledge of the variance
+of those parameters--that requires knowledge of the full posterior probability distribution.
+This in turn requires integration of the likelihood.
+
+From a numerical point of view, its convenient to consider numerical minimizers, and to
+find the MLE by finding the minimum of the negative log likelihood, which we call $\ell\left(\btheta\right)$
+\begin{align}
+    \ell\left(\btheta\right)
+    \equiv
+    - \log \mathcal{L}\left(\btheta\right)
+    .
+\end{align}
+It is convenient to consider the log likelihood, as the likelihood itself can vary
+drastically in value between its maxima and minima, which can be hard for a computer
+to resolve with finite precision arithematic.
+The likelihood, prior, evidence, and posterior are positive definite quantities as
+well, so there is no change of taking a logarithm of these quantities.
+
+Here we review a few minimization methods. 
+There is no best method that will work for all likelihoods, so we
+only review the basics of a few basic methods that underlie more complex
+optimization procedures.
+For concreteness we will focus on minimizing the negative log likelihood
+$\ell\left(\btheta\right)$. 
+
+%==============================================================================
+\section{Convex functions\label{sec:convex-functions}}
+
+We first consider the problem of optimizing convex functions. 
+While the posterior is almost never convex, it is still useful to review this case first
+as the local max/min of a strictly convex function is the global maximum/minimum
+(this is almost never the case for non-convex functions).
+Because of this, 
+some methods (namely, Newton's method and its extensions)
+used to find the minimum of functions try to convert the problem
+into one for finding the minimum of a convex function.
+
+A \textbf{convex function} $f\left(\btheta\right):X\to\mathbb{R}$ satisfies
+\begin{align}
+    \label{eq:convex-function-def}
+    f\left(t \btheta_1 + \left(1-t\right)\btheta_2\right)
+    \leq 
+    t f\left(\btheta_1\right)
+    +
+    \left(1-t\right)f\left(\btheta_2\right)
+    ,
+\end{align}
+for $t\in\left[0,1\right]$ and for all $\btheta_{1,2}\in X$
+(for example, $X=\mathbb{R}^n$).
+A \textbf{strictly convex} function satisfies \eqref{eq:convex-function-def}
+except the $\leq$ is replaced by $<$, and $t\in\left(0,1\right)$ instead.
+
+The local minimum of a convex function is the global minimum of the function.
+This is easy to show. Say $\btheta_*$ is a local minimum, and assume that
+we have found $\btheta$ such that $f\left(\btheta\right)<f\left(\btheta_*\right)$.
+Then we would have
+\begin{align}
+    \label{eq:convex-function-def}
+    f\left(t \btheta_* + \left(1-t\right)\btheta\right)
+    \leq& 
+    t f\left(\btheta_*\right)
+    +
+    \left(1-t\right)f\left(\btheta\right)
+    \nonumber\\
+    <& 
+    t f\left(\btheta_*\right)
+    +
+    \left(1-t\right)f\left(\btheta_*\right)
+    =
+    f\left(\btheta_*\right)
+    .
+\end{align}
+Setting $t=1$, we encounter a contradiction, which concludes the argument.
+We see for a strictly convex function, a local minimum is a global minimum,
+and the global minimum is unique.
+
+%==============================================================================
+\section{Gradient descent\label{sec:gradient-descent}}
+
+First we consider a linear method for finding local minima--gradient descent.
+To understand this method, we Taylor series expand the negative log likelihood
+about a fiducial point $\btheta_0$
+\begin{align}
+    \label{eq:quadratic-taylor-vector}
+    \ell 
+    =
+    \ell_0
+    +
+    \left(\btheta-\btheta_0\right)^T\bg_0
+    +
+    \frac{1}{2}\left(\btheta-\btheta_0\right)^T \bH_0 \left(\btheta-\btheta_0\right) 
+    +
+    \cdots
+    ,
+\end{align}
+where
+\begin{align}
+    g_{0,i}
+    &\equiv
+    \nabla_i\ell\left(\btheta\right)\Big|_{\btheta=\btheta_0}
+    ,\\
+    H_{0,ij}
+    &\equiv
+    \nabla_i\nabla_j\ell\left(\btheta\right)
+    \Big|_{\btheta=\btheta_0}
+    .
+\end{align}
+As a local minimum $\btheta_*$, the gradient of the function is zero, and
+the Hessian is positive definite. 
+Near a local minimum then, we expect the gradient to be pointing ``away''
+from the local minimum.
+Thus if move in the opposite direction to the gradient, we move in the direction
+of the local minimum.
+In gradient descent then, we pick a fiducial value of $\btheta_0$, and then
+iterate the following
+\begin{align}
+    \btheta_{n+1}
+    =
+    \btheta_n
+    -
+    \gamma_n \bg_n
+    .
+\end{align}
+Where $0<\gamma_n$
+is a scalar that one can introduce to make the change between steps be less large.
+We stop iterating when $\left|\btheta_{n+1}-\btheta_n\right|<\epsilon$, where
+$\left|\cdots\right|$ is a norm of our choosing and $0<\epsilon$ is a pre-set tolerance.
+
+While gradient descent is an easy algorithm to implement, it suffers from a
+few problems. First, the method (if it converges) only find a local minimum,
+or possibly only a saddle point.
+Also, it can be tricky to find a good value of $\gamma_n$. 
+If $\gamma_n$ is too small, the method converges very slowly.
+If $\gamma_n$ is too large, the method may never converge.
+
+%==============================================================================
+\section{Newton's method\label{sec:newtons-method}}
+
+We next consider a quadratic method for finding local minima--Newton's method
+(this is Newton's method for optimizing a function, not for finding the root to a function).
+To understand this method, we Taylor series expand the negative log likelihood
+about a fiducial point $\btheta_0$
+\begin{align}
+    \label{eq:quadratic-taylor-vector}
+    \ell 
+    =
+    \ell_0
+    +
+    \left(\btheta-\btheta_0\right)^T\bg_0
+    +
+    \frac{1}{2}\left(\btheta-\btheta_0\right)^T \bH_0 \left(\btheta-\btheta_0\right) 
+    +
+    \cdots
+    ,
+\end{align}
+where
+\begin{align}
+    g_{0,i}
+    &\equiv
+    \nabla_i\ell\left(\btheta\right)\Big|_{\btheta=\btheta_0}
+    ,\\
+    H_{0,ij}
+    &\equiv
+    \nabla_i\nabla_j\ell\left(\btheta\right)
+    \Big|_{\btheta=\btheta_0}
+    .
+\end{align}
+We choose $\btheta$ to minimize the quadratic Taylor series expansion.
+\emph{Assuming} that $\bH_0$ is positive definite, minimizing the quadratic
+Taylor series expansion is an exercise in minimizing a convex function.
+The minimum is then located at the zero of the gradient of the second order Taylor series.
+We find that
+\begin{align}
+    \bg_0 + \bH_0 \left(\btheta - \btheta_0\right) = 0
+    \implies
+    \btheta = \btheta_0 - \bH_0^{-1} \bg_0
+    .
+\end{align}
+This motivates \textbf{Newton's method}.
+Starting with a fiducial point $\btheta_0$, we iterate in $\btheta_n$, where
+at each iteration we set 
+\begin{align}
+    \btheta_{n+1} = \btheta_n - \gamma_n \bH_n^{-1} \bg_n
+    .
+\end{align}
+Where $0<\gamma_n\leq1$
+is a scalar that one can introduce to make the change between steps be less large.
+We stop iterating when $\left|\btheta_{n+1}-\btheta_n\right|<\epsilon$, where
+$\left|\cdots\right|$ is a norm of our choosing and $0<\epsilon$ is a pre-set tolerance.
+
+As with the gradient descent method, Newton's method may only find a local
+minimum of saddle point. 
+There are also numerous technical problems with inversion of the Hessian.
+First, the Hessian matrix may be very large if there are many parameters,
+so it could be hard to invert (it may be ill conditioned). 
+Additionally the Hessian could be singular,
+or nearly singular.
+We note that the Hessian may not be positive definite either at a given point
+(it often won't be), which in principle isn't
+fatal to the method, but depending on the size of the eigenvalues to the
+Hessian, large negative eigenvalues could dramatically change the
+value of $\btheta_{n+1}$ versus $\btheta_n$.

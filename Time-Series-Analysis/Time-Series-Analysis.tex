@@ -1,0 +1,602 @@
+We consider the problem of determining the signal from a data timestream.
+Calling the data $x(t)$, we then want to find a signal $s(t)$ given noise
+$n(t)$, where
+\begin{align}
+    \label{eq:x-signal-n}
+    x\left(t\right) = s\left(t\right) + n\left(t\right)
+    .
+\end{align}
+We model the noise $n(t)$ can be modeled as a \textbf{stochastic process}
+(which implies that $x(t)$ is a stochastic process)
+We assume $x,s,n$ are all real functions.
+Our main goal is to derive the likelihood function for a time series of the form
+\eqref{eq:x-signal-n} when $n$ takes the form of colored stationary noise, and
+to derive the matched filtering theorem.
+
+%===============================================================================
+\section{Basic definitions}
+
+A function $n(t)$ is a \textbf{stochastic process}, 
+if $n(t)$ is a random variable at each time $t$ that is described by some probability distribution.
+This probability distribution may depend on $t$, and the previous history of values of $x$, for example.
+If $t$ is a discrete variable, and the probability distribution for $n(t_i)$ depends on
+$n(t_{i-1})$, then $n(t_i)$ is a \textbf{Markov chain}.
+If the probability distribution for $n(t)$ is independent of $t$, then $n(t)$
+is a \textbf{stationary process}.
+
+%===============================================================================
+\section{Correlation and covariance}
+
+We denote the mean and variance of a time series $x(t)$ with $\mu_x$ and $\sigma_x$, respectively. 
+We define the \textbf{covariance} between two stochastic processes $x_1$ and $x_2$ at times $t_1$ and $t_2$ to be 
+\begin{align}
+    C_{x_1,x_2}\left(t_1,t_2\right)
+    \equiv
+    \mathbb{E}\left[
+        \left(x_1\left(t_1\right) - \mu_{x_1\left(t_1\right)}\right)
+        \left(x^*_2\left(t_2\right) - \mu^*_{x_2\left(t_2\right)}\right)
+    \right]
+    .
+\end{align}
+We define the \textbf{autocovariance} for a stocahstic process to be 
+\begin{align}
+    K_{x}\left(t_1,t_2\right)
+    \equiv
+    C_{xx}\left(t_1,t_2\right)
+    .
+\end{align}
+We define the \textbf{autocorrelation} for a stochastic process to be
+\begin{align}
+    R_{x}\left(t_1,t_2\right)
+    \equiv
+    \mathbb{E}\left[x\left(t_1\right)x^*\left(t_2\right)\right]
+    =
+    K_{x} + \mu_x^2
+    .
+\end{align}
+
+We define the \textbf{energy} of a time series $s$ to be 
+\begin{align}
+    E_{x}
+    \equiv
+    \int_{-\infty}^{\infty}dt \left|x\left(t\right)\right|^2
+    =
+    \int_{-\infty}^{\infty}df \left|\tilde{x}\left(f\right)\right|^2
+    .
+\end{align}
+The last expression follows from Parseval's theorem.
+We define the \textbf{energy spectral density} to be
+\begin{align}
+    \hat{S}_{x}\left(f\right)
+    \equiv
+    \left|\tilde{x}\left(f\right)\right|^2
+    .
+\end{align}
+
+%===============================================================================
+\section{Stationary and weak-sense stationary stochastic processes}
+
+A stochastic process is said to be \textbf{stationary} if its joint probability
+distribution does not change under time shifts. 
+A stochastic process is said to be \textbf{weak-sense stationary (WSS)}
+(or \textbf{wide-sense stationary}), then its first moment is independent of time,
+and if its autocorrelation function depends only on $\tau=t_1-t_2$.
+For a WSS process we can write
+\begin{align}
+    \label{eq:WSS-autocorrelation}
+    R_x\left(\tau\right) 
+    =
+    \mathbb{E}\left[x\left(t+\tau\right)x^*\left(t\right)\right]
+    ,
+\end{align}
+where $t$ is arbitrary.
+For a WSS/stationary process, we can write the expectation of $x$ at a given instant as 
+the average of $x$ over all time 
+\begin{align}
+    \mathbb{E}\left[x\right]
+    =
+    \lim_{T\to\infty}\frac{1}{T}\int_{-\infty}^{\infty}dt x_T\left(t\right)
+    ,
+\end{align}
+and similarly for functions of $x(t)$.
+Here $x_T\left(t\right)$ is defined to be
+\begin{align}
+    x_T\left(t\right) 
+    \equiv& 
+    w_T\left(t\right)x\left(t\right)
+    ,\\
+    w_T\left(t\right)
+    \equiv&
+    \begin{cases}
+        1 & |t|<T/2
+        \\
+        0 & \mathrm{otherwise}
+    \end{cases}
+    .
+\end{align}
+In other words, we can write
+\begin{align}
+    \label{eq:autocorrelation-WSS-integral}
+    R_x\left(\tau\right)
+    =
+    \lim_{T\to\infty}\frac{1}{T}\int_{-\infty}^{\infty}dt 
+        x_T\left(t+\tau\right)x_T^*\left(t\right)
+    .
+\end{align}
+We emphasize that for WSS processes we can replace ensemble averages with time averages.
+This is extremely useful in practice, as we can then determine the statistical properties
+of WSS by taking repeated time measurements of observables of the time series.
+While it is common to assume a given time stream is WSS, 
+most real world data is at best approximately WSS, typically over a short time scale.
+
+Stationary stochastic processes have support over the entire real line, 
+so the energy integrals defined above typically diverge. 
+For these processes, instead one looks at the \textbf{power}
+\begin{align}
+    P_{x}
+    \equiv&
+    \lim_{T\to\infty}\frac{1}{T}\int_{-\infty}^{\infty}dt \left|x_T\left(t\right)\right|^2
+    \nonumber\\
+    =&
+    \lim_{T\to\infty}\frac{1}{T}\int_{-\infty}^{\infty}df \left|\tilde{x}_T\left(f\right)\right|^2
+    \nonumber\\
+    =&
+    \int_{-\infty}^{\infty}df S_x\left(f\right) 
+    .
+\end{align}
+One the last line we have used the \textbf{power spectral density}, 
+which is defined to be
+\begin{align}
+    \label{eq:power-spectral-density}
+    S_{x}\left(f\right)
+    \equiv
+    \lim_{T\to\infty}\frac{1}{T}\left|\tilde{x}_T\left(f\right)\right|^2
+    .
+\end{align}
+If $x(t)$ is real, then $\tilde{x}_T\left(-f\right)=\tilde{x}^*_T\left(f\right)$, and
+it is common to define the power spectral density to be
+\begin{align}
+    S_x\left(f\right)
+    \equiv
+    \lim_{T\to\infty}\frac{2}{T}\left|\tilde{x}_T\left(f\right)\right|^2
+    ,
+\end{align}
+and to write
+\begin{align}
+    P_x
+    =
+    \int_0^{\infty}df S_x\left(f\right)
+    .
+\end{align}
+
+Finally, we consider the expectation value of the Fourier transform
+of a stationary signal
+\begin{align}
+    \mathbb{E}\left[\tilde{x}\left(f^{\prime}\right)\tilde{x}^*\left(f\right)\right]
+    =&
+    \int_{-\infty}^{\infty}dt \int_{-\infty}^{\infty}dt^{\prime}
+        e^{- 2\pi i \left(f t - f^{\prime}t^{\prime}\right)}
+        \mathbb{E}\left[x\left(t\right)x\left(t^{\prime}\right)\right]
+    \nonumber\\
+    =&
+    \int_{-\infty}^{\infty}dt e^{-2\pi i \left(f-f^{\prime}\right)t}
+    \int_{-\infty}^{\infty}d\tau e^{-2\pi i f^{\prime}\tau}
+        \mathbb{E}\left[x\left(t+\tau\right)x\left(t\right)\right]
+    \nonumber\\
+    =&
+    \int_{-\infty}^{\infty}dt e^{-2\pi i \left(f-f^{\prime}\right)t}
+        \tilde{R}_x\left(f\right) 
+    \nonumber\\
+    =&
+    \delta\left(f-f^{\prime}\right)S_x\left(f\right) 
+    .
+\end{align}
+On the third line we used that $x(t)$ was stationary.
+
+%=====================================================================================
+\section{Wiener-Khinchin theorem}
+
+The power spectral density and the Fourier transform of the autocorrelation are
+equal for WSS processes. 
+This is known as the \textbf{Wiener–Khinchin theorem}.
+To prove this, we set $\tau\equiv t_1-t_2$. We then write 
+\begin{align}
+    \tilde{R}_{x}\left(f\right)
+    =& 
+    \int_{-\infty}^{\infty}d\tau e^{-2\pi i f \tau}R_{x}\left(\tau\right)
+    \nonumber\\
+    =& 
+    \lim_{T\to\infty}\frac{1}{T}\int_{-\infty}^{\infty}d\tau e^{-2\pi i f \tau} 
+    \int_{-\infty}^{\infty} dt x_T\left(t+\tau\right)x^*_T\left(t\right)
+    \nonumber\\
+    =& 
+    \int_{-\infty}^{\infty}df^{\prime}  
+    \int_{-\infty}^{\infty}d\tau
+        e^{2\pi i \left(f^{\prime}-f\right)\tau} 
+        \lim_{T\to\infty}\frac{1}{T}\left|\tilde{x}_T\left(f^{\prime}\right)\right|^2 
+    \nonumber\\
+    =& 
+    S_{x}\left(f\right) 
+    .
+\end{align}
+On the second line we used the formula for the autocorrelation function
+for WSS processes \eqref{eq:autocorrelation-WSS-integral}.
+On the third line we used the convolution theorem for Fourier transforms.
+On the last line we used that $\int d\tau e^{i\tau f}=\delta(f)$, and
+used the definition of $S_x(f)$ \eqref{eq:power-spectral-density}.
+%===============================================================================
+\section{Gaussian white noise}
+
+As a special case of a stationary stochastic process, 
+we first consider \textbf{Gaussian white noise}. 
+By \textbf{Gaussian}, we mean that the probability distribution for 
+$x\left(t\right)$ for each $t_i$ is a Gaussian 
+\begin{align}
+    x\left(t_i\right) \sim \mathcal{N}\left(\mu_i,\sigma_i^2\right)
+    .
+\end{align}
+By \textbf{white}, we mean that the $x\left(t_i\right)$ are uncorrelated, 
+and that the means $\mu_i=0$.
+The autocorrelation function then is 
+\begin{align}
+    \label{eq:autocorrelation-white-noise}
+    R_{x}\left(t_i,t_j\right)
+    =
+    \sigma^2 \delta_{ij}
+    .
+\end{align}
+Notice that $\sigma^2$ does not depend on $t_i$. 
+We see that white noise is stationary.
+The autocorrelation function can be written in terms of $\tau \equiv t_i-t_j$ as
+\begin{align}
+    \label{eq:autocorrelation-white-noise}
+    R_{x}\left(\tau\right) = \sigma^2 \delta\left(\tau\right) 
+    .
+\end{align}
+By the Wiener-Kinchin theorem, we can compute the power spectral density from
+the Fourier transform of the autocorrelation function
+\begin{align}
+    S_{x}\left(f\right)
+    =&
+    \int_{-\infty}^{\infty} dt e^{2\pi i f t}R_{x}\left(t\right)
+    \nonumber\\
+    =&
+    \sigma^2
+    .
+\end{align}
+We see for Gaussian white noise, the power spectral density is a constant--there
+is constant power across all frequencies.
+For real functions, the integral over frequencies goes from $[0,\infty)$,
+and we define
+\begin{align}
+    S_x\left(f\right)
+    =
+    2\sigma^2 
+    .
+\end{align}
+
+%===============================================================================
+\section{Likelihood function for a series of measurements with colored stationary noise
+\label{sec:likelihood-function-colored-noise}}
+
+Our treatment roughly follows \cite{Creighton:2011zz} (see also \cite{Finn:1992wt}).
+We consider a series of a continuous time stream of observations $y\left(t\right)$.
+We assume that $y\left(t\right)$ can be related to a convolution of
+a time stream drawn from Gaussian white noise
+\begin{align}
+    y\left(t\right)
+    =
+    \int_{-\infty}^{\infty}dt^{\prime}\gamma\left(t-t^{\prime}\right)x\left(t^{\prime}\right)
+    .
+\end{align}
+Here $\gamma$ is the kernel and $x$ is a time stream drawn from a Gaussian
+distribution with constant.
+We assume $y,x,\gamma$ are all real functions.
+The Fourier transform gives us
+\begin{align}
+    \tilde{y}\left(f\right)
+    =
+    \tilde{\gamma}\left(f\right)\tilde{x}\left(f\right)
+    .
+\end{align}
+The power spectral density of $y$ then is
+\begin{align}
+    S_{y}\left(f\right)
+    =
+    \left|\tilde{\gamma}\left(f\right)\right|^2S_x\left(f\right)
+    =
+    \left|\tilde{\gamma}\left(f\right)\right|^2\sigma
+    .
+\end{align}
+The main point of adding the convolution is that we can consider processes
+with \textbf{colored noise}, that noise where the power spectral density
+can vary with frequency. We can do this by choosing some $\sigma$, and
+then choosing a $\gamma$ such that $|\tilde{\gamma}\left(f\right)|^2$
+gives us the spectral density we desire.
+
+We note that $y\left(t\right)$ describes a WSS process, as
+\begin{align}
+    \mathbb{E}\left[y\left(t_1\right)y\left(t_2\right)\right]
+    =&
+    \int_{-\infty}^{\infty}dt_1^{\prime}
+    \int_{-\infty}^{\infty}dt_2^{\prime}
+        \gamma\left(t_1-t_1^{\prime}\right)
+        \gamma\left(t_2-t_2^{\prime}\right)
+        \mathbb{E}\left[x\left(t_1^{\prime}\right)x\left(t_2^{\prime}\right)\right]
+    \nonumber\\
+    =&
+    \sigma^2
+    \int_{-\infty}^{\infty}dt^{\prime}
+        \gamma\left(t_1-t^{\prime}\right)
+        \gamma\left(t_2-t^{\prime}\right)
+    \nonumber\\
+    =&
+    \sigma^2
+    \int_{-\infty}^{\infty}dt
+        \gamma\left(\tau-t\right)
+        \gamma\left(t\right)
+    .
+\end{align}
+On the second line we used ~\eqref{eq:autocorrelation-white-noise},
+while on the third we set $t=t_2-t^{\prime}$.
+
+We consider a discretized set of $N$ points (evenly spaced) from
+$x(t)$ and $y(t)$. We write the vectors 
+${\bf x}$ and ${\bf y}$ where the componets are, e.g.
+${\bf x}_i \equiv x(t_i)$.
+We define the discretized matrix $\Gamma_{ij} \equiv \gamma\left(t_i-t_j\right)$.
+We then have
+\begin{align}
+    y_i = \Gamma_{ij} x_j
+\end{align}
+We define the matrix
+\begin{align}
+    \Sigma_{ij}
+    \equiv 
+    \frac{\sigma^2}{\Delta t} \delta_{ij}
+    ,
+\end{align}
+where $\Delta t \equiv T/\left(N-1\right)$, and $N$ is the number of discretized points. 
+We choose this scaling so that the autocorrelation of $x_i$ approaches the
+correct behavior in the continuum limit, as we show below.
+The probability distribution for each ${\bf x}$ is
+\begin{align}
+    P_{\bf X}\left({\bf x}\right)
+    =
+    \left(\frac{1}{\sqrt{2\pi}}\right)^N\frac{1}{\sqrt{\det{\Sigma}}}
+    \exp\left[-\frac{1}{2}x_i\Sigma^{-1}_{ij}x_j\right]
+    .
+\end{align}
+The correlation for $x$ is then
+\begin{align}
+    \mathbb{E}\left[x_ix_j\right]
+    =&
+    \int d^Nx P_{\bf X}\left({\bf x}\right) x_i x_j
+    \nonumber\\
+    =&
+    \int d^Nx 
+        \left(\frac{1}{\sqrt{2\pi}}\right)^N\frac{1}{\sqrt{\det{\Sigma}}}
+        \exp\left[-\frac{1}{2}x_i\Sigma^{-1}_{ij}x_j\right]
+        x_i x_j
+    \nonumber\\
+    =&
+    \sigma^2\frac{\delta_{ij}}{\Delta t}
+    .
+\end{align}
+In the limit $\Delta t\to0$, this approaches $\sigma^2\delta\left(t_i-t_j\right)$,which is the autocorrelation function for Gaussian white noise; 
+see ~\eqref{eq:autocorrelation-white-noise}.
+
+We obtain the probability distribution for ${\bf y}$ under a linear transformation
+of variables
+(note the ordering of the indices)
+\begin{align}
+    P_{\bf Y}\left({\bf y}\right)
+    =
+    \left(\frac{1}{\sqrt{2\pi}}\right)^N
+    \frac{1}{\sqrt{\det{\Sigma}\det{\Gamma}}}
+    \exp\left[-\frac{1}{2}y_i\Gamma_{mi}^{-1}\Sigma^{-1}_{mn}\Gamma^{-1}_{nj}y_j\right]
+    .
+\end{align}
+This expression gives the probability the $N$ draws.
+We now need to take the continuum limit.
+First we look at the argument of the exponential  
+\begin{align}
+    y_i\Gamma^{-1}m_{mi}\Sigma^{-1}_{mn}\Gamma^{-1}_{nj}y_j
+    =&
+    \frac{1}{\sigma^2}x_ix_i \Delta t
+    \nonumber\\
+    \to&
+    \frac{2}{S_x} \int_{t_s}^{t_f}dt \left|x\left(t\right)\right|^2
+    \nonumber\\
+    \approx&
+    \frac{2}{S_x} \int_{-\infty}^{\infty}dt \left|x\left(t\right)\right|^2
+    \nonumber\\
+    =&
+    \frac{4}{S_x} \int_0^{\infty}df \left|\tilde{x}\left(f\right)\right|^2
+    \nonumber\\
+    =&
+    4\int_{-\infty}^{\infty}df 
+        \frac{\left|\tilde{y}\left(f\right)\right|^2}{S_y}
+    .
+\end{align}
+Here $t_s,t_f$ are the start and end times for the series $x(t)$.
+On the first line we used $x_i = \Gamma^{-1}_{ij}x_j$, and that
+$\Sigma_{ij}^{-1} = \sigma^{-1}\delta_{ij}$.
+On the second and third lines we converted the Riemann sum to an
+integral (we took the continuum limit).
+We approximated the start/end times with $\pm\infty$.
+On the last line we use $\tilde{x}=\tilde{y}/\tilde{\gamma}$, 
+$S_y= \left|\tilde{\gamma}\left(f\right)\right|^2S_x$, and that
+$S_x$ is a constant, so we can pull it into the integral.
+Remember that we assume that $x,y,\gamma$ are all real, so that for example
+$x\left(-f\right)=x^*\left(-f\right)$.
+Ignoring the constant normalization factor, we see that the probability density
+function (the likelihood function) for $y\left(t\right)$ is
+\begin{align}
+    \label{eq:likelihood-function-colored-noise}
+    P\left(y\left(t\right)\right)
+    \propto
+    \exp\left[-\frac{1}{2}\left(y,y\right)\right]
+    ,
+\end{align}
+where we have defined the inner product
+\begin{align}
+    \label{eq:inner-product-matched-filter}
+    \left(a,b\right)
+    \equiv
+    2 \int_0^{\infty}df
+        \frac{
+            a\left(f\right)b^*\left(f\right)
+            +
+            b\left(f\right)a^*\left(f\right)
+        }{
+            S_y\left(f\right)
+        }
+        .
+\end{align}
+Here $S_y\left(f\right)$ is the spectral noise density for the process,
+and $a,b$ can represent the Fourier transform of particular draws.
+We interpret ~\eqref{eq:likelihood-function-colored-noise} as the likelihood
+function (up to normalization) for colored WSS noise.
+We call ~\eqref{eq:inner-product-matched-filter} a \textbf{matched filter}.
+We define the \textbf{signal to noise ratio (SNR)} for a signal $s$ with noise $n$ to be 
+\begin{align}
+    \rho^2
+    \equiv
+    \left(s,s\right)
+    =
+    4 \int_0^{\infty}df
+        \frac{
+            \left|s\left(f\right)\right|^2
+        }{
+            S_n\left(f\right)
+        }
+    .
+\end{align}
+
+%===============================================================================
+\section{Matched filter theorem}
+
+We next derive the optimal test statistic for extracting a singal from
+WSS colored noise.
+We consider a time series $x(t)$ that can be written as
+\begin{align}
+    x\left(t\right) = s\left(t\right) + n\left(t\right)
+    .
+\end{align}
+We assume that $n(t)$ can be written as a convolution with Gaussian
+white noise, as we described in Sec.~\eqref{sec:likelihood-function-colored-noise}.
+We assume we are searching for a signal $s\left(t\right)$ that we know how
+to compute. 
+We these assumptions, we can compute the optimal test statistic to 
+distinguish between the two following hypothesis:
+\begin{enumerate}
+    \item[] Null hypothesis $\mathcal{H}_0$: $x\left(t\right) = n\left(t\right)$.
+    \item[] Alternative hypothesis $\mathcal{H}_1$: $x\left(t\right) = s_1\left(t\right) + n\left(t\right)$.
+\end{enumerate}
+Here $s_1\left(t\right)$ is a signal we are guessing is in the data.
+We compare the two hypothesis by computing the likelihood ratio
+(likelihood for short for the rest of this section)
+\begin{align}
+    \Lambda\left(\mathcal{H}_1|x\right)
+    \equiv
+    \frac{P\left(x|\mathcal{H}_1\right)}{P\left(x|\mathcal{H}_0\right)}
+    .
+\end{align}
+We use the likelihood function ~\eqref{eq:likelihood-function-colored-noise}.
+We next show that $s_1\propto s$ maximizes $\Lambda$, which is the \textbf{matched filtering theorem}.
+
+If the null hypothesis is true, then the probability density function goes as
+\begin{align}
+    P\left(x|\mathcal{H}_0\right)
+    \propto
+    \exp\left[-\frac{1}{2}\left(x,x\right)\right]
+    .
+\end{align}
+If the alternative hypothesis is true, then the probability density function
+goes as 
+\begin{align}
+    P\left(x|\mathcal{H}_0\right)
+    \propto
+    \exp\left[-\frac{1}{2}\left(x-s_1,x-s_1\right)\right]
+    .
+\end{align}
+We have used ~\eqref{eq:inner-product-matched-filter}, with the noise power spectral
+density given by $S_n(f)$.
+The normalization factors cancel out in the likelihood ratio, and we are left with
+\begin{align}
+    \Lambda\left(\mathcal{H}_1|x\right)
+    =&
+    \mathrm{exp}\left[
+            - 
+            \frac{1}{2} \left(x-s_1,x-s_1\right) + \frac{1}{2}\left(x,x\right)
+        \right]
+    \nonumber\\
+    =&
+    \exp\left[
+             \left(x,s_1\right) - \frac{1}{2}\left(s_1,s_1\right) 
+        \right]
+    .
+\end{align}
+
+The matched filtering theorem states that the likelihood ratio 
+$\Lambda\left(\mathcal{H}_1|x\right)$ is maximized when $s_1\propto s$.
+To show this, we first note that likelihood ratio is maximized when the log-likelihood
+ratio $L$ is maximized. The log-likelihood is
+\begin{align}
+    L\left(s_1\right)
+    \equiv
+    \left(n,s_1\right)
+    +
+    \left(s,s_1\right)
+    -
+    \frac{1}{2}\left(s_1,s_1\right)
+    .
+\end{align}
+We only consider $s_1$ such that $\left(n,s_1\right)=0$
+(this also holds for the ``true'' signal $s$).
+Moreover, we fix $\left(s_1,s_1\right)=c_1$, where $c_1$ is a constant
+(otherwise the likelihood could be arbitrarily big or small by rescaling the amplitude of $s_1$)
+Maximizing the likelihood then reduces to maximizing
+\begin{align}
+    L\left(s_1\right)
+    = 
+    \left(s,s_1\right)
+    -
+    \frac{1}{2}c_1
+    .
+\end{align}
+By the Cauchy-Schwartz inequality, we have that
+\begin{align}
+    \left(s,s_1\right)
+    \leq 
+    \sqrt{\left(s,s\right)}
+    \sqrt{\left(s_1,s_1\right)}
+    .
+\end{align}
+Equality only holds when $s_1\propto s$.
+We conclude that choosing  $s_1\propto s$ 
+maximizes the likelihood function (up to a proportionaly constant,
+which is fixed by the condition $(s_1,s_1)=c_1$). 
+
+The task of finding a signal in colored WSS noise then reduces to
+finding a filtering function $s_1$ that is orthogonal to the noise,
+and that maximizes the value of the matched filter $\left(x,s_1\right)$.
+In practice, we can determine the noise profile of the detector by
+measuring the response of the detector in the (assumed) absence of any signal.
+
+The matched filtering theorem is powerful, but it relies on several strong assumption
+that are only approximately met in practice. 
+First, it assumes that we know what we are looking for--that is, that we have a 
+\textbf{template bank} of templates $s_i(t)$ that we can convolve with the data.
+Even if we do have a template bank, it can be very computationally expensive to
+search for the $s_i$ that fits the data best, especially if the parameter space
+for $s_i$ is large. 
+Efficiently evaluating the likelihood and searching through parameter space remains
+a topic of active research in, e.g. the gravitational wave astronomy community
+(for a review, see e.g. \cite{Creighton:2011zz}).
+The matched filtering theorem also assumes the noise is stationary or WSS. 
+Most kinds of detectors (say a phone line, or a gravitational wave detector) suffer
+from non-stationary noise, often called \textbf{glitches}.
+Provided those are well enough understood, they can be subtracted out of the signal,
+although in practice it can be difficult to completely remove glitches from a time stream.

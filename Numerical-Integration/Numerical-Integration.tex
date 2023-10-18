@@ -1,0 +1,639 @@
+We we discussed in Sec.~\ref{chap:bayesian-overview}, 
+in parametric Bayesian statistics
+our goal is to determine the posterior probability distribution of the
+parameters of the model under consideration, given a set of measured data,
+or to determine the total evidence for the model. 
+
+A large portionof omputational, parameteric Bayesian statistics essentially consists of determining ways to compute high dimensional integrals.
+To understand why we need to compute integrals in parameteric Bayesian statistics 
+we look again at Bayes theorem
+\begin{align}
+    \label{eq:Bayes-theorem}
+    P\left(\btheta|\bx\right)
+    =
+    \frac{
+        \mathcal{L}\left(\btheta\right)\pi\left(\btheta\right)
+    }{
+        \mathcal{Z}\left(x\right)
+    }
+    ,
+\end{align}
+where $\pi$ is the prior and the the likelihood $\mathcal{L}$ and
+evidence $\mathcal{Z}$ are
+\begin{align}
+    \label{eq:likelihood}
+    \mathcal{L}\left(\btheta\right)
+    =&
+    \prod_{i=1}^NP\left(\bx_i|\btheta\right)
+    ,\\
+    \label{eq:evidence}
+    \mathcal{Z}\left(\btheta\right)
+    =&
+    \int d^k\theta 
+        \mathcal{L}\left(\btheta\right)\pi\left(\btheta\right)
+    .
+\end{align}
+We have assumed the measurements of $\bx$ have been taken idependently
+on one another in the equation for the likelihood.
+We assume that the parameters $\btheta$ are continuous.
+Clearly if we want to determine $P\left(\btheta|\bx\right)$ directly, we need to compute the evidence $\mathcal{Z}$, which requires integrating over the likelihood.
+Beyond this though, many summary statistics of practical interest require computing an integral.
+For example, we may be interested in the expectation of $\btheta$ and its covariance matrix 
+\begin{subequations}
+\begin{align}
+    \mu_i
+    =
+    \mathbb{E}\left[\theta_i\right]
+    &\equiv
+    \int d^k\theta P\left(\btheta|\bx\right)\theta_i 
+    ,\\
+    C_{ij}
+    \equiv
+    \mathbb{E}\left[\left(\theta_i-\mu_i\right)\left(\theta_j-\mu_j\right)\right]
+    &\equiv
+    \int d^k\theta P\left(\btheta|\bx\right)
+        \left(\theta_i-\mu_i\right)\left(\theta_j-\mu_j\right) 
+    ,
+\end{align}
+\end{subequations}
+We cover methods to compute high dimensional integrals, as in many applications $k\gg1$ (or at least, $k\gtrsim10$).
+In this regime, it is usually computationally infeasible to compute \eqref{eq:evidence} using traditional deterministic methods such as the trapezoid rule or Gaussian quadrature.
+For example if $k=10$, and if we have $10$ quadrature points in each parameter direction, we will need to make $N\gtrsim 10^{10}$ evaluations for a trapsoid rule approximation ot the evidence.
+The likelihood function is often a highly complex function with sharp peaks,
+so many more than $10$ grid points would be needed to resolve in each direction
+in order to properly resolve the posterior.
+
+As far as I am aware, the most efficient way to compute high dimensional
+integrals is through stochastic/Monte Carlo methods.
+The fact that Monte Carlo methods are the best methods to compute many high
+dimensional integrals is somewhat surprising, as they have very slow
+rates of convergence.
+In general, the error of Monte Carlo integrals goes as 
+$N^{-1/2}$, where $N$ is the number of points used in the approximation.
+In one dimension, approximations as simple as the trapezoid rule converge
+to the correct answer as $1/N^2$ (e.g. \cite{PresTeukVettFlan92}).
+This being said, the accuracy of methods such as the trapezoid rule rapidly
+deteriorate at higher dimension, while for Monte Carlo methods, the accuracy
+decreases as $N^{-1/2}$, regardless of the dimensionality of the problem,
+althouh the proportionality constant to this decrease strongly depends on the choice of algorithm one uses, and the dimensionality of the problem. 
+We only consider stochastic/Monte Carlo integration methods in this chapter.
+
+In effect, Bayesian parametric statistics reduces statistics to probability
+theory, and many problems in probability theory can be reduced to problems in
+the integration of complciated functions in high dimensional spaces.
+There are three main approaches to integration, 
+\textbf{Riemann integration}, \textbf{Riemannian-Stieltjes integration},
+and \textbf{Lebesgue integration}.
+
+\textbf{Monte Carlo integration} can be thought of as providing an
+approximation to the Riemannian integral. 
+We review Monte Carlo integration in Sec.~\ref{eq:Monte-Carlo-integration}.
+The most commonly used variant of Monte Carlo integration is
+\textbf{Markov chain Monte Carlo} (MCMC) integration, 
+which can be thought of as approximating the Riemann-Stieltjes integral. 
+We eview MCMC integration in Sec.~\ref{sec:mcmc}.
+The Monte Carlo approximation of certain kinds of Lebesgue integrals goes under the name \textbf{Nested Sampling} (NS), which we review in Sec.~\ref{sec:nested-sampling}.
+There are many excellent, long discussions of all these methods on the
+internet and elsewhere
+(e.g. \cite{brooks2011handbook,skilling-nested-sampling,Hogg:2017akh}), 
+so we only outline the main ideas.
+
+Before continuing, we mention two applications where you
+do not need to compute an integral
+(and hence do not need to use the methods discussed here).
+If we only need to compute the ratio of the posterior for two parameters
+values $\btheta_1$ and $\btheta_2$,
+we only need to determine
+$P\left(\btheta_1|\bx\right)/P\left(\btheta_2|\bx\right)
+=\mathcal{L}\left(\btheta_1\right)/\mathcal{L}\left(\btheta_2\right)$,
+which does not involve any integrals.
+We also do not need to compute any integrals if we only want the maximum
+of the posterior or the likelihood (the maximum likelihood estimator).
+We review some maxization methods in  Chptr.~\ref{chap:numerical-optmization}.
+
+
+%==============================================================================
+\section{Monte Carlo integration\label{eq:Monte-Carlo-integration}}
+
+Consider a function $f\left(\btheta\right)$, and an integral over the domain $\Omega$
+\begin{align}
+    \label{eq:integral-f-monte-carlo}
+    I
+    =
+    \int_{\Omega} d^k\theta f\left(\btheta\right)
+    .
+\end{align}
+We can view \eqref{eq:integral-f-monte-carlo} as the expectation of $f$ 
+over $\Omega$, with respect to the uniform distribution $U\left(\Omega\right)$.
+In Monte-Carlo integration, we sample points uniformly on $\Omega$, and then
+approximate $I$ via
+\begin{align}
+    \label{eq:monte-carlo-integral-f}
+    I_N
+    = 
+    \frac{1}{N}\sum_{i=1}^N f\left(\bx_i\right)
+    .
+\end{align}
+Here $N$ is the number of times we have sampled from $U\left(\Omega\right)$,
+and $\bx_i$ are the sample points.
+Monte Carlo integration works if we can efficiently evaluate $f$. 
+From the law of large numbers,
+\begin{align}
+    \lim_{N\to\infty}I_N = I
+    .
+\end{align}
+The standard error of the mean goes as $N^{-1/2}$, which gives us our estimate
+for the error of this approximation; that is we can write (e.g. \cite{PresTeukVettFlan92})
+\begin{align}
+    \int_{\Omega} d^k\theta f\left(\btheta\right)
+    \approx
+    V\left(\Omega\right)
+    \left(
+        \mathbb{E}\left[f\right]
+        \pm
+        \sqrt{\frac{\mathbb{V}\left[f\right]}{N}}
+    \right)
+    ,
+\end{align}
+where $V\left(\Omega\right)$ is the volume of $\Omega$.
+We see that the convergence of Monte Carlo integration scales as $1/\sqrt{N}$,
+regardless of the dimensionality of the integral.
+This is the key property of stochastic integration methods, and what makes them
+widespread use in computing high dimensional integrals.
+In one dimension, almost any other quadrature method outperforms Monte Carlo integration 
+(for example, the error to the trapezoid rule scales as $1/N^2$),
+but for higher dimensional integrals the convergence of most methods rapidly deteriorates.
+
+We can think of Monte Carlo integration as an example of a stochastic approximation
+to the Riemann integral of $f$.
+Recall that the Riemann integral is the limit of the sum over $f(\btheta_i)$
+multiplied by the volume of a small (possibly multidimensional) 
+rectangle centered on $f\left(\btheta_i\right)$,
+which we call $V\left(\btheta_i\right)$.
+\begin{align}
+    \int d^k\theta f\left(\btheta\right)
+    =
+    \lim_{N\to\infty}\sum_{i=1}^N V\left(\btheta_i\right)f\left(\btheta_i\right)
+    .
+\end{align}
+In effect, in Monte Carlo integration we approximate $V\left(\btheta_i\right)$
+with $n/N$, where $n$ is the number of draws we made in that volume.
+
+Monte Carlo integration works best if most of the integral $I$ is not concentrated in a few small volume regions; that is if $f\left(\btheta\right)$ is not too ``peaked''.
+Most likelihoods are strongly peaked though--for example from the
+Bernstein–von Mises theorem (see Appendix \ref{chap:probability-theory})
+we expect the likelihood to approximately behave as a multivariate normal function 
+around the maximum likelihood estimator as the amount of data we collect
+goes to infinity. 
+Moreover the covariance matrix elements scale as $1/N_d$, where $N_d$ is the
+number of data points, so the distribution becomes increasingly localized
+near the maximum likelihood estimator, and more generally near other local
+maxima of the likelihood.
+That is, selecting $\btheta_i$ from the uniform distribution could mean that
+we are mostly sampling from places where $f\left(\btheta_i\right)$ is much smaller
+than near the peaks. 
+In that case, we would be missing most what contributes to the integral
+\eqref{eq:integral-f-monte-carlo}, which slows down the rate of convergence
+(the prefactor in front of the asymptotic scaling of $1/\sqrt{N}$).
+
+This motivates the introduction of integrations methods that preferentially sample
+from regions near the local maxima of the integrand in 
+\eqref{eq:integral-f-monte-carlo}.
+We next discuss two such adaptive methods:
+Markov chain Monte Carlo (MCMC) methods, which can
+also be thought of as an adaptive approximation to the Riemann integral, and
+nested sampling methods, which can be though of as an adaptive approximation 
+to the Lebesgue integral\footnote{For smooth functions--which is what the posterior distribution
+function $P\left(\btheta|\bx\right)$ is, provided the prior and 
+our model $P\left(\bx|\btheta\right)$ are smooth--there 
+is no substantive, practical difference between the Riemann and Lebesgue integral.
+Nevertheless we will see that there are different strengths and weaknesses
+to MCMC and nested sampling, 
+unrelated to the kinds of integrals they are approximating.} 
+
+%==============================================================================
+\section{Markov chain Monte Carlo (MCMC)\label{sec:mcmc}}
+
+The idea behind MCMC integration 
+is to generate the random samples for the Monte Carlo
+integration of $\Omega$ dynamically, through a Markov Chain. 
+To do this, we rewrite the integral \eqref{eq:integral-f-monte-carlo} as follows
+\begin{align}
+    \label{eq:MCMC-integral}
+    I
+    =
+    \int d^k\theta p\left(\btheta\right)g\left(\btheta\right) 
+    ,
+\end{align}
+where
+\begin{align}
+    \int d^k\theta p\left(\btheta\right)
+    =
+    1
+    .
+\end{align}
+That is, we interpret $p\left(\btheta\right)$ as a probability distribution.
+We can view \eqref{eq:MCMC-integral} as a Riemann-Stieltjes integral,
+\begin{align}
+    \label{eq:riemann-steiltjes-integral}
+    I
+    =
+    \int dF\left(\btheta\right) g\left(\btheta\right)
+    ,
+\end{align}
+with the measure $dF\left(\btheta\right) \equiv d^k\theta p\left(\btheta\right)$.
+We defined
+\begin{align}
+    \label{eq:F-RS-int}
+    F\left(\lambda\right)
+    \equiv
+    \int_0^{g\left(\btheta\right)<\lambda} d^k\theta p\left(\btheta\right)
+    .
+\end{align}
+
+Properly speaking, MCMC is a method for drawing samples from $p\left(\btheta\right)$, for use in calculating integrals of the form \eqref{eq:MCMC-integral}.
+It turns out that a histogram of our sampling of $p\left(\btheta\right)$ will
+begin to resemble $p\left(\btheta\right)$ as the number of draws goes to infinity.
+For this reason, MCMC methods are often seen as ways to determine the ``shape''
+or functional properties of $p\left(\btheta\right)$.
+Here we take the perspective of numerical integration theory, so we think of 
+$p\left(\btheta\right) = f\left(\btheta\right)/g\left(\btheta\right)$ 
+as a weighting factor for our integration of \eqref{eq:integral-f-monte-carlo}. 
+
+First we define a few concepts about Markov Chains.
+We will borrow some of the concepts from the discussion on stochastic processes
+in Chptr.~\ref{chap:time-series-analysis}.
+A \textbf{Markov chain} is a sequence of random vectors
+(a stochastic process) $\left\{\btheta_1,\btheta_2,...\right\}$, 
+where the probability distribution of $\btheta_{n+1}$ is dependent solely on $\btheta_n$.
+That is 
+$P\left(\btheta_{n+1}|\left\{\btheta_i\right\}\right) 
+ =
+ P\left(\btheta_{n+1}|\btheta_n\right)$. 
+We call $P\left(\btheta_{n+1}|\btheta_n\right)$ the \textbf{transition probability}. 
+The probability distribution for $\btheta_1$, $P\left(\btheta_1\right)$, is called
+the \textbf{initial distribution}.
+We will only consider Markov chains with \textbf{stationary transition probabilities},
+where the transition probabilities do not depend on $n$.
+
+Operationally, MCMC integration of \eqref{eq:integral-f-monte-carlo}
+goes as follows.
+\begin{enumerate}
+    \item We pick an initial point $\btheta_1$, and then generate new samples
+        $\btheta_n$ based on a suitably chosen transition probability.
+    \item For the first few iterations of the Markov Chain, the points $\btheta_n$
+        will be highly correlated with our initial start point, but if one runs the
+        Markov Chain for enough iterations, the points $\{\btheta_n\}$ will eventually
+        converge to the target distribution $p\left(\btheta\right)$.
+    \item Integration then proceeds as in Monte Carlo integration
+        \begin{align}
+            \label{eq:mcmc-integral-sum}
+            I_N
+            =
+            \frac{1}{N}\sum_{i=1}^N g\left(\btheta_i\right)
+            ,
+        \end{align}
+        with similar convergence properties to Monte Carlo integration 
+        (the error will asymptotically go does as $1/\sqrt{N}$).
+        The hope though is that the prefactor to the leading asymptotic decay will be
+        much smaller than it would be for regular Monte Carlo integration.
+\end{enumerate}
+We see that we can view \eqref{eq:mcmc-integral-sum} as an approximation to the
+Riemann–Stieltjes integral \eqref{eq:riemann-steiltjes-integral}.
+
+There are whole volumes on MCMC (e.g. \cite{brooks2011handbook}); 
+for a nice shorter review see \cite{Hogg:2017akh}.
+Here we only outline what a ``suitable'' Markov Chain transition probability
+must satisfy, the Metropolis-Hastings algorithm, and some limitations
+of most MCMC methods.
+
+An MCMC chain must eventually limit to a stationary distribution that is
+equal to $p\left(\btheta\right)$.
+A sufficient (but not necessary) conditions for a Markov chain to have a 
+stationary distribution $Q\left(\btheta\right)$ is that the
+transition probabilities must satisfy the \textbf{detailed balance} condition 
+\begin{align}
+    P\left(\btheta|\bpsi\right)Q\left(\bpsi\right)
+    =
+    P\left(\bpsi|\btheta\right)Q\left(\btheta\right)
+    ,
+\end{align}
+for any $\btheta,\bpsi$. 
+To see why detailed balance implies stationarity, we compute the probability
+of a transition to new step $\btheta_n$. 
+The probability distribution for a new step $\btheta$ is equal to the
+integral (or sum, if there a discrete number of points)
+over all possible earlier points $\psi$.
+We assume those are distributed according to the probability distribution
+$Q\left(\bpsi\right)$. We then show that the distribution for $\btheta$,
+$P\left(\btheta\right)$, is equal to $Q\left(\btheta\right)$, which
+implies that the chain is stationary. We have
+\begin{align}
+    P\left(\btheta\right)
+    &=
+    \int d^k\psi P\left(\btheta|\bpsi\right) Q\left(\bpsi\right)
+    \nonumber\\
+    &=
+    \int d^k\psi P\left(\bpsi|\btheta\right) Q\left(\btheta\right)
+    \nonumber\\
+    &=
+    \frac{Q\left(\btheta\right)}{P\left(\btheta\right)}
+    \int d^k\psi P\left(\bpsi,\btheta\right)
+    \nonumber\\
+    &=
+    Q\left(\btheta\right)
+    .
+\end{align}
+This proves existence of a stationary chain, but it does not prove uniqueness.
+Proving uniqueness of the stationary distribution is beyond the scope of these notes.
+Most practitioners simply ignore the question of uniqueness.
+
+Finally, we discuss an example of a Markov Chain that satisfies 
+the detailed balance
+condition for the target function $p\left(\btheta\right)$
+(lower case $p$; see \eqref{eq:MCMC-integral}):
+the \textbf{Metropolis-Hastings algorithm}.
+Consider a point $\btheta$.
+We draw $\bpsi$ from the \textbf{proposal probability} $Q\left(\bpsi|\btheta\right)$
+(we are free to specify $Q$).
+We then draw a random variable $x$ from the uniform distribution $U\left(0,1\right)$. We next compute the \textbf{acceptance probability} 
+\begin{align}
+    \label{eq:metropolis-p}
+    r 
+    =
+    \min\left(
+        1,
+        \frac{p\left(\btheta\right)}{p\left(\bpsi\right)}
+        \frac{Q\left(\btheta|\bpsi\right)}{Q\left(\bpsi|\btheta\right)}
+    \right)
+    .
+\end{align}
+If $x>r$, we jump to the point $\bpsi$, otherwise, we stay at the point $\btheta$.
+To prove that transition probability in the 
+Metropolis-Hastings algorithm satisfies the detailed balance condition, 
+we rewrite the transition probability amplitude as being equal to
+the proposal probability times the acceptance probability
+\begin{align}
+    P\left(\bpsi|\btheta\right)
+    =
+    r \times Q\left(\bpsi|\btheta\right)
+    .
+\end{align}
+We then have
+\begin{align}
+    P\left(\btheta|\bpsi\right)p\left(\bpsi\right)
+    &=
+    \min\left(
+        p\left(\bpsi\right)Q\left(\bpsi|\btheta\right)
+        ,
+        p\left(\btheta\right)Q\left(\btheta|\bpsi\right)
+    \right)
+    \nonumber\\
+    &=
+    \min\left(
+        p\left(\btheta\right)Q\left(\btheta|\bpsi\right)
+        ,
+        p\left(\bpsi\right)Q\left(\bpsi|\btheta\right)
+    \right)
+    \nonumber\\
+    &=
+    P\left(\bpsi|\btheta\right)p\left(\btheta\right)
+    .
+\end{align}
+
+%==============================================================================
+\section{Nested sampling\label{sec:nested-sampling}}
+
+As with MCMC integration, we consider integrals of the form
+\begin{align}
+    \label{eq:integral-nested-ptheta}
+    I
+    =
+    \int d^k\theta p\left(\btheta\right) L\left(\btheta\right)
+    .
+\end{align}
+We can only integrate positive definite functions with the nested sampling algorithm, 
+which is why we use the slightly different notation of $L$ instead of $g$ here: 
+we restrict to functions such that $L\geq0$.
+This notation is motivated from the following:
+the main application of the nested sampling integration is to compute the evidence 
+$\mathcal{Z}$,
+which is an integral of the prior probability distribution times the likelihood
+\begin{align}
+    \mathcal{Z}
+    =
+    \int d^k\theta \pi\left(\btheta\right) \mathcal{L}\left(\btheta\right)
+    .
+\end{align}
+
+Before we describe the algorithm, we first need to rewrite \eqref{eq:integral-nested-ptheta}
+as an integral over the level sets of $L\left(\btheta\right)$.
+To do this, we write \eqref{eq:integral-nested-ptheta} as Riemann-Stieltjes integral
+\eqref{eq:riemann-steiltjes-integral}, and then integrate by parts.
+We define the function
+\begin{align}
+    \label{eq:F-NS-int}
+    X\left(\lambda\right)
+    &\equiv
+    \int_{L\left(\btheta\right)>\lambda} d^k\theta p\left(\btheta\right)
+    .
+\end{align}
+As $\lambda$ increases, $X$ decreases from $1$ to $0$.
+With this, we have
+\begin{align}
+    \label{eq:integration-by-parts}
+    I
+    =
+    \int d^k \theta p\left(\btheta\right) L\left(\btheta\right)
+    =&
+    -
+    \int dX L
+    \nonumber\\
+    =&
+    -
+    X\left(L\right) L\big|_{L=0}^{L=L_{max}}
+    +
+    \int_0^{L_{max}} dL X\left(L\right)
+    \nonumber\\
+    =&
+    \int_0^{L_{max}} dL X\left(L\right)
+    .
+\end{align}
+We assumed that $L_{min}=0$ (which holds for the likelihood function), and used that $X=0$ at $L=L_{max}$. 
+We assume that we can invert $X\left(L\right)$ to the function $L\left(X\right)$.
+We can then rewrite \eqref{eq:integration-by-parts} by integrating by parts, to obtain
+\begin{align}
+    \label{eq:integral-nested-X}
+    I
+    =
+    -
+    \int_1^0 dX L\left(X\right)
+    =
+    \int_0^1 dX L\left(X\right)
+    .
+\end{align}
+Unlike \eqref{eq:integral-nested-ptheta}, \eqref{eq:integral-nested-X}
+is a one-dimensional integral. 
+In \eqref{eq:integral-nested-X} we should think of $L$ as the parameter
+in $X\left(L\right)$, not as $L\left(\btheta\right)$.
+Nested sampling provides a noisy approximation to \eqref{eq:integral-nested-X},
+through a partitioning of the $X$ interval, and hence provides a noisy approximation
+to the Lebesgue integral of \eqref{eq:integral-nested-ptheta}.
+
+To understand why \eqref{eq:integral-nested-X} 
+is the Lebesgue integral of \eqref{eq:integral-nested-ptheta},
+recall that the Lebesgue integral is the limit of the sum over 
+$g_i\equiv g\left(\btheta_i\right)$
+multiplied by the Lebesgue measure of the set $E_i$ of points $\btheta_j$ for which
+$g\left(\btheta_j\right)\approx g\left(\btheta_i\right)$
+\begin{align}
+    \label{eq:lebesgue-sum}
+    I_N
+    =
+    \sum_{i=1}^N g_i \mu\left(E_i\right)
+    .
+\end{align}
+We can think of $g_i \mu\left(E_i\right)$ as the discretization of $dX \lambda\left(X\right)$.
+
+The nested sampling algorithm goes as follow
+\begin{enumerate}
+    \item We draw $n$ points $\btheta_i$ from $p\left(\btheta\right)$, treating
+        it as a probability distribution. Set $X_0=1$.
+    \item Repeat for $N$ times, so you have the sequence $X_1,...,X_n$ and
+        $L_{min,1},...,L_{min,N}$. For the $j^{th}$ iteration
+    \begin{enumerate}
+        \item Record the lowest value of $=L_{min,j}=L\left(\btheta_j\right)$. 
+            Set $X_j = e^{-j/n}$, or alternatively set $X_j = t_j X_{j-1}$, where
+            $t_j$ is drawn from the beta distribution $\mathrm{Beta}\left(1,n\right)$.
+        \item Remove the value of $\btheta_j$ that minimizes $L\left(\btheta\right)$,
+            and then sample again from $p\left(\btheta\right)$, until you get a point
+            $\btheta_k$ such that $L\left(\btheta_k\right)>L_{min,j}$.
+    \end{enumerate}
+    \item The integral can then be obtained by summing the $L$ values via some quadrature rule 
+        \begin{align}
+            I_N
+            =
+            \sum_{i=1}^{N-1} w_i f\left(L_{min,i}\right)
+            .
+        \end{align}
+        For example, for the trapezoid rule we would set $w_i = X_{i}-X_{i-1}$ and $f\left(L_{min,i}\right)=\left(L_{min,i} + L_{min,i-1}\right)/2$.  
+\end{enumerate}
+In the context of Bayes rule, where $I_N$ is our estimate of the evidence $\mathcal{Z}$, we can obtain an estimate for the posterior probability distribution via the rule
+\begin{align}
+    p\left(\btheta_i\right)
+    \approx
+    \frac{w_i f\left(L_{min,i}\right)}{I_N}
+    .
+\end{align}
+
+One of the tricky things to understand about the nested sampling method is the value of the measure of the likelihood $L_{min,i}$, $X_i$.
+Consider a sample from $p\left(\btheta\right)$: $\left\{\theta_j\right\}$, subject to
+$L\left(\btheta_j\right)>L_{min,j-1}$. 
+So long as we draw $\btheta_j$ from $p\left(\btheta\right)$
+subjecto to the constraint $L\left(\btheta\right)>L_j$,
+the values of the volumes $X\left(\btheta_j\right)$ are drawn from $U\left(0,X_{j-1}\right)$.
+This follows from the \textbf{probability integral transform}, which we review
+in Chptr.~\ref{chap:probability-theory}.
+Then $X_j = t_j X_{j-1}$, where $t_j$ is the largest of $n$
+uniformly distributed numbers in the interval $(0,1)$.
+The number $t_j$ is called the \textbf{shrinkage factor}.
+Notice that we have 
+\begin{align}
+    \label{eq:shrinkage-product}
+    X_j = \prod_{i=1}^{j} t_i 
+    .
+\end{align}
+The cumulative probability distribution function for the maximum of $n$ randomly
+distributed numbers in that interval is
+\begin{align}
+    C.D.F.\left(t_{max}\right) 
+    &=
+    P\left(\max\left\{t_1,...,t_n\right\}<t_{max}\right)
+    \nonumber\\
+    &=
+    \left(P\left(t<t_{max}\right)\right)^n
+    \nonumber\\
+    &=
+    t_{max}^{n}
+    .
+\end{align}
+The probability density function for the maximum is then the beta distribution 
+$\mathrm{Beta}\left(1,n\right)$, that is
+\begin{align}
+    P\left(t_{max}\right) 
+    =
+    n t_{max}^{n-1}
+    .
+\end{align}
+To estimate $X_j$ then, we could take a draw from the Beta distribution, $t$,
+and multiply that by $X_{j-1}$.
+To get a (presumably) less noisy answer, we could set $X_j$ to be its averaged
+expected value.
+We take the expectation of the log of $X_j$, to simplify the calculation of the expectation
+\begin{align}
+    \mathbb{E}\left[\log X_j\right]
+    =
+    \sum_{i=1}^j \mathbb{E}\left[\log t_i\right]
+    .
+\end{align}
+As the $t_i$ are independt, we can estimate the error of this approximation by 
+computing the variance
+\begin{align}
+    \mathbb{V}\left[\log X_j\right]
+    =
+    \sum_{i=1}^j \mathbb{V}\left[\log t_i\right]
+    .
+\end{align}
+The expectation value of the logarithm of $t_{max}$ is
+\begin{align}
+    \mathbb{E}\left[\log t_{max}\right]
+    =&
+    \int_0^1 dt \;n t^{n-1}\;\log t 
+    \nonumber\\
+    =&
+    -
+    \frac{1}{n}
+    .
+\end{align}
+The variance of the log of $t_{max}$
+\begin{align}
+    \mathbb{V}\left[\log t_{max}\right]
+    =&
+    \mathbb{E}\left[\left(\log t_{max}\right)^2\right]
+    -
+    \left(\mathbb{E}\left[\log t_{max}\right]\right)^2
+    \nonumber\\
+    =&
+    \int_0^1 dt \; n t^{n-1} \; \left(\log t\right)^2
+    -
+    \frac{1}{n^2}
+    \nonumber\\
+    =&
+    \frac{1}{n^2}
+    .
+\end{align}
+Combining everything, we see that the shrinkage factor is approximately
+\begin{align}
+    \log X_j
+    \approx&
+    j \; \mathbb{E}\left[ \log t_{max}\right]
+    +
+    \sqrt{j \; \mathbb{V}\left[\log t_{max}\right]}
+    \nonumber\\
+    =&
+    -
+    \frac{j}{n}\left(1 \pm \frac{1}{\sqrt{j}}\right) 
+    .
+\end{align}
+This gives us
+\begin{align}
+    X_j
+    \approx 
+    e^{-j/n}
+    .
+\end{align}
+Our approximation to the integral gets better as we add more points $n$,
+and as we take more steps $N$. 
+We incur the biggest relative errors in the integration for the first few small
+steps $j$, but so long as $L$ is highly peaked, and we take very small steps,
+those terms contribute very little to the total integral.

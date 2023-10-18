@@ -1,0 +1,733 @@
+%--------------------------------------------------------------------
+\section{Note on notation}
+
+We denote the probability of measuring $\btheta$ by $P\left(\btheta\right)$,
+the joint probability by $P\left(\btheta,\bx\right)$, 
+and the conditional probability by $P\left(\btheta|\bx\right)$.
+In probability theory it is common to denote a probability distribution
+function (PDF) as $f_{\bX}\left(\bx\right)$ for a random variable $\bX$.
+To get a probability from a continuous PDF, you need to perform an integral.
+In other words, technically $f_{\bX}\left(\bX\right)$ is not a probability,
+but $\int_{V} d^nx f_{\bX}\left(\bX\right)$ over some volume $V$ is a probability.
+In situations where we may be refering to either a PDF or a probability,
+we will simply use $P$, which hopefully won't be too confusing. 
+
+When a random variables $\bX$ has a PDF $f_{\bX}\left(\bx|\btheta\right)$,
+we say $\bX \sim f\left(\btheta\right)$, where $f$ denotes that probability
+and $\btheta$ are the hyperparameters of the model.
+
+%--------------------------------------------------------------------
+\section{Conditional probability and Bayes theorem}
+
+The conditional probability is
+\begin{align}
+    P\left(\btheta|\bx\right)
+    =
+    \frac{P\left(\btheta,\bx\right)}{P\left(\bx\right)}
+    .
+\end{align}
+Using this, we have Bayes theorem
+\begin{align}
+    \label{eq:Bayes-theorem-1}
+    P\left(\btheta|\bx\right)P\left(\bx\right)
+    =
+    P\left(\bx|\btheta\right)P\left(\btheta\right)
+    .
+\end{align}
+Bayes theorem is more often written as
+\begin{align}
+    \label{eq:Bayes-theorem-2}
+    P\left(\btheta|\bx\right)
+    =
+    \frac{
+        P\left(\bx|\btheta\right)P\left(\btheta\right)
+    }{
+        P\left(\bx\right)
+    }
+    .
+\end{align}
+As we discuss more in Chptr.~\ref{chap:bayesian-overview}, 
+we can view $P\left(\btheta|\bx\right)$ as the distribution of
+model parameters given a model $P\left(\bx|\btheta\right)$,
+and some prior knowledge of the model parameters $P\left(\btheta\right)$.
+%--------------------------------------------------------------------
+\section{Change of variables}
+
+Consider a PDF $f_{\bTheta}\left(\btheta\right)$.
+What is the probability distribution to $P\left(\bpsi\left(\btheta\right)\right)$,
+where $\bpsi$ is some function of $\btheta$?
+The following remains unchanged under a change of variables
+\begin{align}
+    \int_V d^k\theta f_{\bTheta}\left(\btheta\right)
+    &=
+    \int_{V} d^k\psi f_{\bPsi}\left(\bpsi\right)
+    \nonumber\\
+    &=
+    \int_{V} d^k\theta \left|\det\left(J_{ij}\right)\right| 
+        f_{\bPsi}\left(\bpsi\right)
+    .
+\end{align}
+We viewed $V$ as a geometric volume (that is, it is independent of the coordinate choice we use).
+Here 
+\begin{align}
+    \label{eq:Jacobian-matrix}
+    J_{ij}
+    \equiv
+    \frac{\partial\psi^i}{\partial\theta_j}
+    ,
+\end{align}
+is the Jacobian matrix.
+Equating terms within the integral, we find that
+\begin{align}
+    \label{eq:change-of-variable-pdf}
+    f_{\bPsi}\left(\bpsi\right)
+    =
+    \frac{1}{\left|\det\left(J_{ij}\right)\right|} f_{\bTheta}\left(\btheta\right)
+    .
+\end{align}
+As an example application of this formula, we consider the posterior probability distribution for $\bpsi\left(\btheta\right)$. 
+If $\bpsi\left(\btheta\right)$ is not injective, we need to replace the RHS of \eqref{eq:change-of-variable-pdf} with a sum over the different values of $\btheta$ that map to the same $\bpsi$.
+In other words, we have
+\begin{align}
+    \label{eq:change-of-variable-pdf}
+    f_{\bPsi}\left(\bpsi\right)
+    =
+    \sum_{\btheta \; : \; \bpsi\left(\btheta\right)=\bpsi}
+    \frac{1}{\left|\det\left(J_{ij}\right)\right|} f_{\bTheta}\left(\btheta\right)
+    .
+\end{align}
+Note that in general this ``sum'' may in fact be an integral.
+From Bayes theorem \eqref{eq:Bayes-theorem-2}, we then have
+\begin{align}
+    f_{\bPsi}\left(\bpsi|\bx\right)
+    &=
+    \frac{
+        f_{\bX}\left(\bx|\bpsi\left(\btheta\right)\right)
+        f_{\bPsi}\left(\bpsi\right)
+    }{
+        f_{\bX}\left(\bx\right)
+    }
+    \nonumber\\
+    &=
+    \frac{1}{\left|\det\left(J_{ij}\right)\right|}
+    \frac{
+        f_{\bX}\left(\bx|\bpsi\left(\btheta\right)\right)
+        f_{\bTheta}\left(\btheta\right)
+    }{
+        f_{\bX}\left(\bx\right)
+    }
+    .
+\end{align}
+That is, to find the probability distribution for some function of the distribution parameters, we only need to find the probability distribution for the prior under that change in coordinates. 
+
+%--------------------------------------------------------------------
+\section{Cumulative distribution function}
+
+The \textbf{cumulative distribution function} (CDF) $F$ for a probability distribution function $f_{\bTheta}$ is
+\begin{align}
+    F_{\bTheta}\left(\xi\right)
+    &=
+    P\left(\btheta < \bF^{-1}_{\bTheta}\left(\xi\right)\right)
+    \nonumber\\
+    &=
+    \int_{P\left(\btheta\right)<\xi} d^k\theta f_{\bTheta}\left(\btheta\right)
+    ,
+\end{align}
+where
+\begin{align}
+    \bF^{-1}_{\bTheta}\left(\xi\right)
+    \equiv
+    \inf\left\{\btheta \; : \; F_{\bTheta}\left(\btheta\right) \geq \xi\right\}
+    .
+\end{align}
+Note that $F_{\bTheta}\left(\bF^{-1}_{\bTheta}\left(\btheta\right)\right) = \btheta$.
+Sometimes in the literature you'll see $F^{-1}_{\bTheta}\left(\xi\right)$ -- which we can efectively think of as the inverse of the CDF -- is called the \textbf{percent point function}.
+
+The \textbf{probability integral transform} states that the random
+variable $\Xi$ defined to be
+\begin{align}
+    \Xi = F_{\bTheta}\left(\xi\right)
+    ,
+\end{align}
+has the standard uniform distribution, that is $\Xi\sim U\left(0,1\right)$.
+The CDF of $\xi$ is
+\begin{align}
+    F_{\Xi}\left(\xi\right)
+    &=
+    P\left(\Xi < \xi\right)
+    \nonumber\\
+    &=
+    P\left(F_{\bTheta}\left(\btheta\right) < \xi\right)
+    \nonumber\\
+    &=
+    P\left(\btheta < \bF^{-1}_{\bTheta}\left(\xi\right)\right)
+    \nonumber\\
+    &=
+    F_{\bTheta}\left(\bF^{-1}_{\bTheta}\left(\xi\right)\right)
+    \nonumber\\
+    &=
+    \xi
+    .
+\end{align}
+We see that the CDF of $F_{\Xi}\left(\xi\right)$ is the same
+as the CDF for the uniform distribution $U\left(0,1\right)$.
+We conclude that $\Xi\sim U\left(0,1\right)$.
+This fact is used in the nested sampling integration algorithm,
+which we discussed in Chpt.~\ref{chap:numerical-integration}.
+
+%--------------------------------------------------------------------
+\section{Expectation and covariance}
+
+We review a few basic definitions from probability theory, as they come
+up later in the notes.
+We define the \textbf{expectation} of a random variable $\bTheta\left(\bx\right)$ to be
+\begin{align}
+    \label{eq:expectation-def}
+    \mathbb{E}\left[\bTheta\right]
+    \equiv
+    \int d^kx f_{\bX}\left(\bx\right) \bTheta\left(\bx\right)
+    ,
+\end{align}
+where $f_{\bX}$ is the PDF of $\bx$.
+Sometimes we denote the expectation with $\mu_{\bTheta}$.
+The \textbf{variance} is
+\begin{align}
+    \label{eq:variance-def}
+    \mathbb{V}_{ij}\left[\bTheta\right]
+    \equiv
+    \mathbb{E}\left[
+        \left(\Theta_i-\mu_{\Theta_i}\right)
+        \left(\Theta_j-\mu_{\Theta_j}\right)
+    \right]
+    .
+\end{align}
+
+The \textbf{covariance} for two random variables $\bTheta,\bPsi$ is
+\begin{align}
+    \label{eq:covariance-def}
+    \mathbb{C}_{ij}\left[\bTheta,\bPsi\right]
+    \equiv
+    \mathbb{E}\left[
+        \left(\Theta_i - \mu_{\Theta_i}\right)
+        \left(\Psi_j   - \mu_{\Psi_j}  \right)
+    \right]
+    .
+\end{align}
+Note that we can think of the expectation of two scalar random variables $\Theta,\Psi$ as an inner product
+\begin{align}
+    \label{eq:expectation-inner-product-def}
+    \mathbb{E}\left[\Theta\Psi\right]
+    =
+    \left<\Theta,\Psi\right>
+    .
+\end{align}
+It is easy to see from \eqref{eq:expectation-def} that \eqref{eq:expectation-inner-product-def} satisfies
+the properties of an inner product: 
+$\left<\Theta,\Theta\right>\geq0$, $\left<\Theta,\Psi\right>=\left<\Psi,\Theta\right>$, and linearity.
+
+Consider a random variable $\bTheta\left(\bpsi\right)$. 
+Say we want this variable to represent another random variable, say the parameters of the posterior $\btheta$.
+We then call $\bTheta$ an \textbf{estimator} for $\btheta$.
+The \textbf{bias} of $\bTheta$ then is
+\begin{align}
+    \label{eq:bias-def}
+    \bb\left(\bTheta\right)
+    \equiv
+    \mathbb{E}\left[\bTheta\right]
+    -
+    \btheta
+    .
+\end{align}
+If $\bb=0$, then $\bTheta$ is an \textbf{unbiased estimator} for $\btheta$.
+
+%===============================================================================
+\section{Characteristic/moment generating function}
+
+To prove the central limit theorem, first we introduce 
+the Fourier transform (or \textbf{characteristic function}) of
+a probability distribution. 
+Consider a random vector $\bX$ with probability distribution 
+$f_{\bX}\left(\bx\right)$, that is $\bX\sim f_{\bX}$. 
+We denote the moment generating function with $\psi_{\bX}$, which is
+\begin{align}
+    \label{eq:moment-generating-function-def}
+    \psi_{\bX}\left(\bt\right)
+    \equiv
+    \int_{-\infty}^{\infty} d^kx e^{i\bt^T\bx} f_{\bX}\left(\bx\right)
+    = 
+    \mathbb{E}\left[e^{i\bt^T \bX}\right] 
+    .
+\end{align}
+If we set $\bt = -i \tilde{\bt}$, then $\psi_{\bX}$ is called the
+\textbf{moment generating function}.
+For most probability distributions, there is no meaningful difference between
+using $\bt$ or $-i\tilde{\bt}$ (there could potentially only be a difference 
+if the distribution had complex poles or branch cuts).
+Notice that
+\begin{align}
+    \mathbb{E}\left[X_{i_1}\cdots X_{i_l}\right]
+    =
+    \frac{1}{i^l}
+    \nabla_{t_{i_1}}\cdots\nabla_{t_{i_l}}\psi_{\bX}\left(\bt\right)
+    .
+\end{align}
+That is, we can obtain the moments of the probability distribution from the
+characteristic function (although we need to divide by $1/i^l$).
+
+Perhaps most importantly, notice that since the characteristic function
+for a probability distribution is the Fourier transform of the probability density,
+we can uniquely map a probability density to its characteristic function and back.
+That is, given a characteristic function, we can find the unique probability
+density that it corresponds to.
+
+Consider a linear affine transformation of the random variable $\bX$,
+which we call $\bY = a\bX + \bb$. We also call $\by = a\bx + \bb$.
+The probability distribution with the volume element remains unchanged 
+$dy f_{\bY}\left(\bx\right)
+    =
+    dx f_{\bX}\left(\bx\right)
+    $.
+We conclude that
+\begin{align}
+    \psi_{\bY}\left(\bt\right)
+    =&
+    \int_{-\infty}^{\infty} d^ky e^{i\bt^T\by} f_{\bY}\left(\by\right)
+    \nonumber\\
+    =&
+    e^{i\bt^T\bb}\int_{-\infty}^{\infty} d^kx e^{ia\bt^T\bx} f_{\bX}\left(\bx\right)
+    \nonumber\\
+    =&
+    e^{i\bt^T\bb}\psi_{\bX}\left(at\right)
+    .
+\end{align}
+The characteristic function of a sum of independent variables 
+is the product of the characteristic function for each variable.
+Define $\bY = \sum_{i=1}^n \bX_i$, we then have
+\begin{align}
+    \psi_{\bY}\left(\bt\right)
+    =&
+    \int_{-\infty}^{\infty} dx^k_1\cdots \int_{-\infty}^{\infty} dx^k_n 
+        e^{i\bt^T\sum_i\bx_i} f_{\bY}\left(\bx_1,...,\bx_n\right)  
+    \nonumber\\
+    =&
+    \prod_{i=1}^n \int_{-\infty}^{\infty} dx^k_i e^{i\bt^T\bx_i} f_{\bX_i}\left(\bx_i\right)
+    \nonumber\\
+    =&
+    \prod_{i=1}^n \psi_{\bX_i}\left(\bt\right) 
+    .
+\end{align}
+The second line follows from 
+$f_{\bY}\left(\bx_1,...,\bx_n\right)=\prod_i f_{\bX_i}\left(\bx_i\right)$,
+as all the variables are independent.
+
+
+%===============================================================================
+\section{Central limit theorem}
+
+Let $\bX_1,...,\bX_n$ be $n$ be independent and identically distributed 
+random vectors (of dimension $k$ each), 
+and let each variable have mean $\bmu$ and covariance matrix $\bSigma$.
+The central limit theorem states that the probability distribution of the
+average of these variables, 
+\begin{align}
+    \bar{\bX}_n
+    \equiv
+    \frac{1}{n}\sum_{i=1}^n\bX_i
+    ,
+\end{align}
+limits to a multivariate normal distribution with mean $\bmu$ and covariance matrix $\bSigma/n$
+as $n\to\infty$.
+Note that we made no assumption about the probability distribution for
+the $\bX_i$, except that the probability distribution has a finite mean
+and variance.
+We can write the central limit theorem as
+\begin{align}
+    \lim_{n\to\infty} \sqrt{n}\bar{\bX}_n
+    \sim 
+    N_k\left(\bmu,\bSigma\right)
+    ,
+\end{align}
+where $N_k$ is the multivariate normal distribution.
+To prove this, we make use of the characteristic function for $\bX_n$, which is
+\begin{align}
+    \label{eq:central-limit-steps}
+    \psi_{\bX_n}\left(\bt\right)
+    =&
+    \prod_{i=1}^n\psi_{\bX_i}\left(\frac{\bt}{n}\right)
+    \nonumber\\
+    =&
+    \left(
+        1 
+        + 
+        i\frac{1}{n}\bt^T\bmu 
+        + 
+        i^2\frac{1}{2}\frac{1}{n^2}\bt^T\bSigma\bt 
+        + 
+        \mathcal{O}\left(\frac{1}{n^3}\right)
+    \right)^n
+    \nonumber\\
+    =&
+    \mathrm{exp}\left[
+        i\bt^T\bmu
+        + 
+        i^2\frac{1}{2}\bt^T\tilde{\bSigma}\bt
+    \right]
+    \left(1 + \mathcal{O}\left(\frac{1}{n^3}\right)\right)
+    ,
+\end{align}
+where $\tilde{\bSigma} = \bSigma/n$.
+We used the identity
+\begin{align}
+    \lim_{n\to\infty}\left(1+\frac{a}{n}\right)^n = e^a
+    .
+\end{align}
+to leading order, the last line of \eqref{eq:central-limit-steps} is the
+characteristic function for $N_k\left(\bmu,\tilde{\bSigma}\right)$
+(see \eqref{eq:characteristic-function-multivariate-normal}).
+This concludes the proof.
+
+%===============================================================================
+\section{Fisher information and the Bernstein–von Mises theorem}
+
+The \textbf{Fisher information} is the negative expectation of the Hessian
+of the log likelihood. In terms of components, we have
+\begin{align}
+    \label{eq:Fisher-information}
+    F_{ij}\left(\btheta\right) 
+    \equiv&
+    -
+    \mathbb{E}_{\theta}\left[
+        \nabla_{\theta^i}\nabla_{\theta^j}\ln P\left(\bx|\btheta\right)
+        \right]
+    \nonumber\\
+    =&
+    -
+    \int d^nx P\left(\bx|\btheta\right)
+        \nabla_{\theta^i}\nabla_{\theta^j}\ln P\left(\bx|\btheta\right)
+    .
+\end{align}
+Here we view $P\left(\bx|\btheta\right)$ as the PDF for $\bX$, that has dependence
+on the \textbf{hyperparamters} $\btheta$.
+For example, we could imagine 
+$P = \left(2\pi \sigma\right)^{-1/2} \mathrm{exp}\left[-\frac{1}{2}\left(x-\mu\right)\right]$,
+and that $\mu,\sigma$ as the hyperparameters of the model.
+We set the dimensionality of $\bx$ to be $n$ and the dimensionality of $\btheta$ to be $k$.
+The Fisher information can also be written as the variance of the \textbf{score function}.
+The score function is
+\begin{align}
+    \label{eq:score-def}
+    s_i\left(\bx;\btheta\right)
+    \equiv
+    \nabla_{\theta^i}\ln P\left(\bx;\btheta\right)
+    .
+\end{align}
+The expectation of the score function is zero
+\begin{align}
+    \mathbb{E}\left[s_i\left(\bx;\btheta\right)\right]
+    =&
+    \int d^nx P\left(\bx;\btheta\right) 
+        \nabla_{\theta^i}\ln P\left(\bx;\btheta\right) 
+    \nonumber\\
+    =&
+    \nabla_{\theta^i}
+    \int d^nx  
+        P\left(\bx;\btheta\right)
+    =
+    0
+    .
+\end{align}
+We then have
+\begin{align}
+    \label{eq:fisher-variance-score}
+    F_{ij}\left(\btheta\right)
+    =&
+    -
+    \int d^nx P\left(\bx;\btheta\right)
+        \nabla_{\theta^i}\nabla_{\theta^j}\ln P\left(\bx;\btheta\right)
+    \nonumber\\
+    =&
+    \int d^nx\left[
+        \frac{1}{P\left(\bx;\btheta\right)}
+        \nabla_{\theta^i}P\left(\bx;\btheta\right)
+        \nabla_{\theta^j}P\left(\bx;\btheta\right)
+        -
+        \nabla_{\theta^i}\nabla_{\theta^j}P\left(\bx;\btheta\right)
+    \right]
+    \nonumber\\
+    =&
+    \int d^nx
+        P\left(\bx;\btheta\right)
+        \nabla_{\theta^i}\ln P\left(\bx;\btheta\right)
+        \nabla_{\theta^j}\ln P\left(\bx;\btheta\right)
+    \nonumber\\
+    =&
+    \mathbb{E}_{\theta}\left[s_is_j\right]
+    \nonumber\\
+    =&
+    \mathbb{V}_{\theta,ij}\left[
+        {\bf s}\left(\bx;\btheta\right)
+    \right]
+    .
+\end{align}
+That is, the Fisher information is the variance of the score.
+
+Let $\hat{\btheta}$ be the maximum likelihood estimator for $\btheta$.
+Under appropriate regularity conditions,
+the likelihood $\mathcal{L}\left(\btheta\right)$ 
+tends towards a multivariate number with mean $\hat{\btheta}$ and 
+covariance matrix given by the inverse Fisher information divided by the number of measurements of the data $n$, 
+$\tilde{\bF}^{-1}=\bF^{-1}/n$. 
+In equations, we have
+\begin{align}
+    \lim_{n\to\infty}P\left(\btheta|\bx\right)
+    =
+    \lim_{n\to\infty}\frac{\pi\left(\btheta\right)\prod_{i=1}^nP\left(\bx_i|\btheta\right)}{\mathcal{Z}\left(\bx\right)}
+    =
+    N\left(\hat{\btheta},\tilde{\bF}^{-1}\right)
+    .
+\end{align}
+This is known as the \textbf{Bernstein–von Mises theorem} (BvM theorem for short). 
+We provide a rough sketch of how the proof goes. 
+For more details see \cite{wasserman2010statistics}.
+The log likelihood is
+\begin{align}
+    \ln\mathcal{L}\left(\btheta\right)
+    =
+    \sum_{i=1}^N\ln P\left(\bx_{i}|\btheta\right)
+\end{align}
+We Taylor series expand the derivative of the log-likelihood to linear order about a point 
+$\btheta_0$
+\begin{align}
+    \nabla_{\theta^i}\ln\mathcal{L}\left(\btheta\right)
+    =&
+    \nabla_{\theta^i}\ln\mathcal{L}\left(\btheta\right)\big|_{\btheta=\btheta_0}
+    +
+    \nabla_{\theta^i}\nabla_{\theta^j}\ln\mathcal{L}\left(\btheta\right)\big|_{\btheta=\btheta_0}
+    \left(\theta-\theta_0\right)^j
+    +
+    \cdots
+    .
+\end{align}
+Setting $\btheta=\hat{\btheta}$, relabeling $\btheta_0\to\btheta$
+(and dropping the $\btheta=\btheta_0$, to reduce clutter), and rearranging gives us 
+(we used that at the maximum likelihood estimator, $\hat{\btheta}$, the derivative of the likelihood is zero)
+\begin{align}
+    \sqrt{n}\left(\hat{\theta}^i - \theta^i\right)
+    =&
+    -
+    \left(\frac{1}{n}\nabla_{\btheta}\nabla_{\btheta}\ln\mathcal{L}\left(\btheta\right)\right)^{-1}_{ij}
+    \left(\frac{1}{\sqrt{n}}\nabla_{\theta^j}\ln\mathcal{L}\left(\btheta\right)\right)
+    .
+\end{align}
+As $n\to\infty$, we see that
+\begin{align}
+    \lim_{n\to\infty}\nabla_{\theta^j}\ln\mathcal{L}\left(\btheta\right)
+    =&
+    \frac{1}{\sqrt{n}}\lim_{n\to\infty}\sum_{m=0}^n\nabla_{\theta^j}\ln P\left(\btheta|\bx_{m}\right)
+    \nonumber\\
+    \to & \sim
+    N_k\left({\bm 0},\bF\right)
+    .
+\end{align}
+This follows from the central limit theorem: the mean of the score is zero, 
+and the variance of the score is the Fisher information.
+By the law of large numbers we can average
+\begin{align}
+    \lim_{n\to\infty}
+    \frac{1}{n}\left(-\left(\nabla_{\btheta}\nabla_{\btheta}\ln\mathcal{L}\left(\btheta\right)\right)_{ij}\right)
+    =&
+    \lim_{n\to\infty}
+    \frac{1}{n}\sum_{m=1}^n
+    \left(-\nabla_{\theta^i}\nabla_{\theta^j}\ln P\left(\btheta|\bx_{m}\right)\right)
+    \nonumber\\
+    \to&
+    F_{ij}
+    .
+\end{align}
+Thus the variance of the limit is modified to be $\bF^{-1}\bF\bF^{-1}=\bF^{-1}$.
+We can then conclude that
+\begin{align}
+    \lim_{n\to\infty}\sqrt{n}\left(\hat{\btheta} - \btheta\right)
+    \sim
+    N_k\left({\bm 0},\bF^{-1}\right)
+    .
+\end{align}
+Or in other words
+\begin{align}
+    \lim_{n\to\infty}\sqrt{n}\hat{\btheta}
+    \sim
+    N_k\left(\hat{\btheta},\bF^{-1}\right)
+    .
+\end{align}
+We have not been careful by what we mean by ``$\to$'' and ``$\sim$'' here--in fact there
+are various notions of convergence that go into the full proof
+(see for example \cite{wasserman2010statistics}).
+
+We can understand the BvM theorem heuristically as follows.
+As we collect more data, the posterior probability becomes increasingly ``peaked'' near
+the maximum likelihood estimator.
+We can then Taylor series about the maximum of the log-likelihood to quadratic order.
+Exponentiating the log-likelihood gives us a multivariate normal with the 
+inverse Fisher information as the covariance matrix.
+
+%===============================================================================
+\section{Fisher information and the Cram\'{e}r-Rao bound}
+
+Consider an estimator $\bTheta$ for model parameters $\btheta$.
+Let $\bSigma$ is the covariance matrix for the estimator $\bTheta$,
+let $\mathbb{E}\left[\bTheta\right]=\bpsi$,
+and let $\bF$ be the Fisher information evaluated at $\bpsi$.
+The Cram\'{e}r-Rao bound states that
+\begin{align}
+    \label{eq:cramer-rao-biased}
+    \Sigma_{ij} 
+    \geq 
+    \nabla_{\theta_m}\psi_i
+    \nabla_{\theta_n}\psi_j
+    F_{mn}^{-1} 
+    ,
+\end{align}
+If $\bTheta$ is an unbiased estimator ($\bpsi=\btheta$), then
+\eqref{eq:cramer-rao-biased} reduces to 
+\begin{align}
+    \label{eq:cramer-rao-unbiased}
+    \Sigma_{ij} 
+    \geq 
+    F_{ij}^{-1} 
+    ,
+\end{align}
+If $\bTheta$ is a biased estimator, then 
+$\nabla_{\theta_i}\psi_j = \delta_{ij} + \nabla_{\theta_i}b_j$, 
+where $b_j$ is the bias.
+The Cram\'{e}r-Rao bound can be used to interpret the Fisher matrix as an estimate
+for the lowest error one could achieve for an unbiased estimator.
+For biased estimators though, we see that the Fisher information does not give a lower
+bound on the elements of the covariance matrix, since it is possible that the bias
+could be negative, $\nabla_{\theta_i}b_j<0$.
+That is, biased estimators can have \emph{smaller} 
+covariance matrix elements than unbiased estimators.
+If the error from the bias is less than the error from the covariance 
+(for example, if one only has a few measurements of noisy data),
+a biased estimator can sometimes be superior to an unbiased
+estimator in determining $\btheta$.
+
+Here we provide the outline of a proof of \eqref{eq:cramer-rao-biased}.
+First we prove a generalization of the Cauchy-Schwartz inequality.
+Let $\by$ and $\bz$ be random vectors (not necessarily of the same dimensionality).
+Then
+\begin{align}
+    \label{eq:generalized-Cauchy-Schwartz}
+    \mathbb{V}_{ij}\left[\bz\right]
+    \geq
+    \mathbb{C}_{ip}\left[\bz,\by\right]
+    \mathbb{V}_{pq}\left[\by\right]^{-1}
+    \mathbb{C}_{qj}\left[\by,\bz\right]
+    .
+\end{align}
+To prove this, we define $\bu \equiv \by - \bmu_{\by}$
+and $\bv \equiv \bz - \bmu_{\bz}$, so $\bmu_{\bu}=0$ and $\bmu_{\bv}=0$.
+For any matrix $\bA$ we have the following matrix inequality 
+(we insert the matrix in case $\bv$ and $\bu$ have different dimensionality)
+\begin{align}
+    \left(\bv + \bA\bu\right)
+    \left(\bv + \bA\bu\right)^T
+    \geq 
+    0
+    .
+\end{align}
+Taking the expectation of this and expanding, we have
+\begin{align}
+    \mathbb{E}\left[\bv\bv^T\right]
+    +
+    \bA\mathbb{E}\left[\bu\bv^T\right]
+    +
+    \mathbb{E}\left[\bv\bu^T\right]\bA^T
+    +
+    \bA\mathbb{E}\left[\bu\bu^T\right]\bA^T
+    \geq
+    0
+    .
+\end{align}
+Set $\bA = - \mathbb{E}\left[\bu\bv^T\right] \mathbb{E}\left[\bu\bu^T\right]^{-1}$.
+The last two terms cancel, and we are left with
+\begin{align}
+    \mathbb{E}\left[\bv\bv^T\right]
+    \geq  
+    \mathbb{E}\left[\bu\bv^T\right] 
+    \mathbb{E}\left[\bu\bu^T\right]^{-1} 
+    \mathbb{E}\left[\bu\bv^T\right]
+    .
+\end{align}
+Re-introducing $\by$ and $\bz$, and using the definition of the covariance 
+\eqref{eq:variance-def} and variance \eqref{eq:covariance-def}, 
+we have \eqref{eq:generalized-Cauchy-Schwartz},
+\begin{align}
+    \mathbb{V}_{ij}\left[\bz\right]
+    \geq  
+    \mathbb{C}_{ip}\left[\by,\bz\right] 
+    \mathbb{V}_{pq}\left[\by\right]^{-1} 
+    \mathbb{C}_{qj}\left[\by,\bz\right]
+    .
+\end{align}
+This completes the proof of the generalized Cauchy-Schwartz inequality.
+
+We now prove \eqref{eq:cramer-rao-biased}.
+We use \eqref{eq:generalized-Cauchy-Schwartz}, and set
+\begin{align}
+    \bz
+    =
+    \bTheta
+    ,\qquad
+    \by
+    =
+    \bs
+    ,
+\end{align}
+where $\bTheta$ is an estimator for $\btheta$,
+and $\bs$ is the score (see \eqref{eq:score-def}). 
+The covariance between $\bTheta$ and $\bs$ is
+\begin{align}
+    \mathbb{C}_{ij}\left[\bTheta,\bs\right]
+    =&
+    \mathbb{E}\left[
+        \left(\Theta_i-\mu_{\Theta_i}\right)
+        \left(s_i-\mu_{s_j}\right)
+    \right]
+    \nonumber\\
+    =&
+    \mathbb{E}\left[\Theta_is_j\right]
+    \nonumber\\
+    =&
+    \int d^nx P\left(\bx|\btheta\right) \Theta_i \nabla_{\theta_j} \ln P\left(\bx|\btheta\right)
+    \nonumber\\
+    =&
+    \nabla_{\theta_j}\mathbb{E}\left[\Theta_i\right]
+    \nonumber\\
+    =&
+    \nabla_{\theta_j}\psi_i
+    .
+\end{align}
+We also have 
+\begin{align}
+    \mathbb{V}_{ij}\left[\bTheta\right]
+    =
+    \Sigma_{ij}
+    ,\qquad
+    \mathbb{V}_{ij}\left[\bs\right]
+    =
+    F_{ij}
+    .
+\end{align}
+We have defined $\bSigma$ to be the covariance matrix of $\bTheta$, 
+and used that Fisher information is the variance of the score 
+(see \eqref{eq:fisher-variance-score}),
+Plugging this all into \eqref{eq:generalized-Cauchy-Schwartz}, 
+we obtain the Cram\'{e}r-Rao bound
+\begin{align}
+    \Sigma_{ij}\Big|_{\btheta=\bmu_{\bTheta}} 
+    \geq 
+    \nabla_{\theta_p}\psi_i
+    \nabla_{\theta_1}\psi_j
+    F_{pq}^{-1}\left(\btheta\right) 
+    .
+\end{align}

@@ -1,0 +1,275 @@
+%--------------------------------------------------------------------
+\section{Definitions}
+
+We use lower case latin latters to index vector/tensor components. 
+We use a lower case latin letter in parenthesis to index a particular
+vector/tensor. We also bold font vectors. 
+Repeated indices are summed (Einstein summation notation). 
+We denote models with capital Latin letters, model parameters with
+lower case greek letters, and data with lower case latin letters.
+Notice that we use latin indices to index both model parameters
+and data with lower case latin indices, even though in general model
+parameters and data will live in different dimensional vector spaces.
+We will drop the instantiation index (the latin index in parenthesis)
+unless otherwise needed.  
+
+Here we focus on \textbf{parametric Bayesian statistics}. 
+By parametric, we mean that we have explicit functional models for the
+probability distributions of parameters, and by Bayesian, we mean we mean
+that we are interested in the probability distribution of those parameters
+(and/or models), given the observed data.
+
+Bayes theorem gives us
+\begin{align}
+    \label{eq:Bayes-theorem}
+    P\left(\btheta|\bx,M\right)
+    =
+    \frac{
+        P\left(\bx|\btheta,M\right)P\left(\btheta,M\right)
+    }{
+        P\left(\bx,M\right)
+    }
+    ,
+\end{align}
+Here $P\left(\bx|\btheta,M\right)$ is a statistical model $M$ 
+that reflects our beliefs about the data $\bx$ given the values of the
+parameters $\btheta$ of a model $M$.
+The \textbf{posterior} $P\left(\btheta|\bx,M\right)$ is a probability distribution
+for the model parameters $\btheta$ given $\bx$.
+The \textbf{likelihood function} is $P\left(\bx|\btheta,M\right)$, and  
+is denoted by $\mathcal{L}\left(\btheta,M\right)$.
+The \textbf{prior distribution} $P\left(\btheta,M\right)$ quantifies our certainty
+of the model parameters $\btheta$ before we see the current data, and is often
+denote by $\pi\left(\btheta,M\right)$.
+The \textbf{evidence} \cite{skilling-nested-sampling} 
+(or marginal distribution of $\bx$ \cite{wasserman2010statistics})
+$P\left(\bx,M\right)$ essentially acts as a normalizing
+constant, as $P\left(\btheta|\bx,M\right)$ must sum (integrate) to one. 
+The evidence is often denoted by $\mathcal{Z}\left(\bx,M\right)$.
+If there are $N$ independent observations of the data $\bx$, the likelihood is
+\begin{align}
+    \label{eq:likelihood}
+    \mathcal{L}\left(\btheta,M\right)
+    =
+    \prod_{n=1}^N P\left(\bx_{(n)}|\btheta,M\right)
+    .
+\end{align}
+We can write the evidence as the integral (or sum) over the model parameter values
+\begin{align}
+    \label{eq:evidence-as-marginalization}
+    \mathcal{Z}\left(\bx,M\right)
+    =&
+    \int d\theta\mathcal{L}\left(\btheta,M\right)\pi\left(\btheta\right) 
+    .
+\end{align}
+
+Much of applied Bayesian statistics centers around finding efficients ways
+to evaluate the likelihood and evidence, given an assumed model
+$P\left({\bf x}|\btheta,M\right)$ and prior $P\left(\btheta,M\right)$.
+
+%--------------------------------------------------------------------
+\section{Parameter estimation}
+
+Assume you have one fixed model $M$. You can find the distribution
+of the parameters for the model, given a set of observed data, using Bayes theorem. 
+Rewriting \eqref{eq:Bayes-theorem}, we have 
+\begin{align}
+    P\left(\btheta|\bx,M\right)
+    =
+    \frac{
+        \mathcal{L}\left(\btheta,M\right)\pi\left(\btheta\right)
+    }{
+        \mathcal{Z}\left(\bx,M\right)
+    }
+    .
+\end{align}
+
+The posterior probability distribution $P\left(\btheta|\bx,M\right)$ for most problems is 
+complicated and cannot be written in closed form.
+Determing the posterior can usually only be accomplished numerically.
+Additionally it can be computationally expensize to compute the posterior distribution,
+especially if there are many parameters in the model ($\btheta$ has many components). 
+
+This being said, it is straightforward to compute the relative probability of two
+different values of parameters $\btheta_{(n)}$ and $\btheta_{(m)}$.
+We have
+\begin{align}
+    \frac{
+        P\left(\btheta_{(n)}|\bx,M\right)
+    }{
+        P\left(\btheta_{(m)}|\bx,M\right)
+    }
+    =
+    \frac{
+        \mathcal{L}\left(\btheta_{(n)},M\right) 
+    }{
+        \mathcal{L}\left(\btheta_{(m)},M\right) 
+    }
+    \frac{
+        \pi\left(\btheta_{(n)},M\right)
+    }{
+        \pi\left(\btheta_{(m)},M\right)
+    }
+    .
+\end{align}
+We can write this in terms of the \textbf{likelihood ratio}
+\begin{align}
+    \lambda\left(\btheta_{(n)},\btheta_{(m)}\right)
+    \equiv
+    \frac{
+        \mathcal{L}\left(\btheta_{(n)},M\right) 
+    }{
+        \mathcal{L}\left(\btheta_{(m)},M\right) 
+    }
+    ,
+\end{align}
+and the \textbf{prior odds}
+\begin{align}
+    R\left(\btheta_{(n)},\btheta_{(m)}\right)
+    \equiv
+    \frac{
+        \pi\left(\btheta_{(n)},M\right)
+    }{
+        \pi\left(\btheta_{(m)},M\right)
+    }
+    .
+\end{align}
+
+We discuss computational methods later, but we note that the value of
+$\btheta$ that maximizes $\mathcal{L}\left(\btheta\right)$ is
+the \textbf{maximum likelihood estimator (MLE)}, and the value of
+$\btheta$ that maximizes
+$\mathcal{L}\left(\btheta\right)\pi\left(\btheta\right)$
+is the \textbf{maximum a posteriori probability estimator (MAP)}.
+Note that the MLE and MAP do not gives us any knowledge of the variance
+of those parameters--that requires knowledge of the full posterior probability distribution.
+
+%--------------------------------------------------------------------
+\section{Model selection/Hypothesis testing}
+
+Second, you could have a collection of models $M_{(1)},...,M_{(N)}$.
+Given a set of observations, you may be interested in the relative ability
+of each model to explain the data.
+Using Bayes' theorem, we have
+\begin{align}
+    P\left(M_{(n)}|\bx\right)
+    =
+    \frac{P\left(\bx|M_{(n)}\right)P\left(M_{(n)}\right)}{P\left(\bx\right)}
+    .
+\end{align}
+This means that
+\begin{align}
+    \frac{P\left(M_{(n)}|\bx\right)}{P\left(M_{(m)}|\bx\right)}
+    =
+    \frac{
+        P\left(\bx|M_{(n)}\right)
+    }{
+        P\left(\bx|M_{(m)}\right)
+    }
+    \frac{
+        P\left(M_{(n)}\right)
+    }{
+        P\left(M_{(m)}\right)
+    }
+    .
+\end{align}
+Notice that we have essentially marginalized over the parameters of the models.
+That is, we have
+\begin{align}
+    P\left(\bx|M_{(n)}\right)
+    =
+    \int d\theta P\left(\bx|\btheta,M_{(n)}\right) P\left(\btheta\right)
+    =
+    \mathcal{Z}\left(\bx,M_{(n)}\right)
+    .
+\end{align}
+We see that the odds ratio for two models is given by the ratio of the evidence 
+for each model multiplied bythe prior odds for each model.
+\begin{align}
+    \frac{P\left(M_{(n)}|\bx\right)}{P\left(M_{(m)}|\bx\right)}
+    =
+    \frac{
+        \mathcal{Z}\left(\bx,M_{(n)}\right) 
+    }{
+        \mathcal{Z}\left(\bx,M_{(m)}\right) 
+    }
+    \frac{
+        P\left(M_{(n)}\right)
+    }{
+        P\left(M_{(m)}\right)
+    }
+    .
+\end{align}
+The odds ratio of the evidence is called the \textbf{Bayes factor}
+\begin{align}
+    \label{eq:bayes-factor}
+    B\left(M_{(n)},M_{(m)}\right)
+    \equiv
+    \frac{
+        \mathcal{Z}\left(\bx,M_{(n)}\right) 
+    }{
+        \mathcal{Z}\left(\bx,M_{(m)}\right) 
+    }
+    .
+\end{align}
+
+%--------------------------------------------------------------------
+\section{Choice of prior}
+Many people hold strong opinions about what a ``good'' choice of
+prior distribution for parameters should be, that often depends on the
+model in question and the field one is working in.
+Here we just review some of the terminology used in discussions on picking priors.
+Ultimately, there are at least as many (more serious) assumptions wrapped up in choosing a model
+to fit in parametric Bayesian statistics as there are in choosing a prior, 
+so we just review the terminology used in picking priors here.
+
+If the posterior probability distribution lies within the same probability
+distribution family (for a review of some different families, see Appendix~\ref{chap:probability-distributions}) 
+as does the prior, then the posterior and prior are said to be
+\textbf{conjugate}, and the prior is a \textbf{conjugate prior}.
+Clearly the likelihood--that is the choice of model we are trying to fit for--plays 
+a deciding role in determining if the prior is conjugate to the posterior.
+The notion of conjugate priors is mostly useful for analytic calculations,
+if we want to have a closed-form expression for the posterior.
+
+So-called \textbf{uninformative priors} are meant to be used when you do
+not know much about the values the parameters you are trying to model.
+Ultimately though 
+For example, the uniform distribution is often used as an uninformative prior,
+although even with a uniform you must choose bounds for it in order for the
+distribution to be normalizable (see Appendix \ref{chap:probability-distributions}).
+Moreover, most distributions are not invariant under coordinate transformations.
+(see Appendix~\ref{chap:probability-theory}).
+Consider an injective change of variables $\bpsi\left(\btheta\right)$.
+The PDF for $\bpsi$ transforms as (see \eqref{eq:change-of-variable-pdf})
+\begin{align}
+    P\left(\bpsi\right)
+    =
+    \frac{1}{\left|\det\left(J_{ij}\right)\right|} P\left(\btheta\right)
+    ,
+\end{align}
+where $J_{ij} = \partial\psi_i/\partial\theta_j$ is the Jacobian matrix.
+The \textbf{Jeffrey's prior} is a distribution that is proportional to the determinant Fisher information matrix 
+\begin{align}
+    P\left(\btheta\right)\propto \sqrt{\det\left(F_{ij}\left(\btheta\right)\right)}
+    .
+\end{align}
+(see Appendix~\ref{chap:probability-theory}), 
+and does not change under the change of variables formula.
+This essentially follows from the fact that $F_{ij}$ is a tensor, so that
+\begin{align}
+    \sqrt{\det\left(F_{ij}\left(\bpsi\right)\right)}
+    &=
+    \sqrt{\det\left(J_{ik}J_{kl}F_{kl}\left(\btheta\right)\right)}
+    \nonumber\\
+    &=
+    \left|\det\left(J_{ij}\right)\right|
+    \sqrt{\det\left(F_{ij}\left(\btheta\right)\right)}
+    .
+\end{align}
+We see that the determinants of the Jacobian cancel each other out.
+While elegant, it is much more common (at least in the physics/astronomy literature) to nevertheless see the uniform prior being used when the authors profess
+ignorance about the expected value of the parameter in question.
+
+In the limit of a large amount of data, so long as the prior
+does not \emph{exclude} the best fit parameters to the model, different choices of prior should not dramatically affect the final estimated values for the paramters (the Bernstein-von Mises theorem is one concrete special case of this statement, see Appendix~\ref{chap:probability-theory}).

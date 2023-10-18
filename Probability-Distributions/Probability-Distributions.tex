@@ -1,0 +1,308 @@
+We briefly review some common probability distributions and some of their properties.
+
+%--------------------------------------------------------------------
+\section{Continuous distributions}
+%--------------------------------------------------------------------
+\subsection{Exponential family of distributions}
+A large number of PDFs fall under the exponential family, so we
+begin by reviewing this class of distributions. 
+The PDF of the exponential family of distributions take the form
+\begin{align}
+    f_{\bX}\left(\bx;\btheta\right)
+    =
+    h\left(\bx\right)
+    g\left(\btheta\right)
+    e^{\beeta^T\left(\btheta\right)\bT\left(\bx\right)}
+    .
+\end{align}
+A large number of PDFs fall under the exponential family. 
+The functional form of $h,g,\beeta,\bT$ determine the particular
+instantiation of the distribution.
+The vector $\beeta$ is called the \textbf{natural parameter} of the exponential family.
+Consider a sequence of $N$ independent and identical draws (IID) from 
+an expoential family.
+The likelihood is
+\begin{align}
+    \mathcal{L}
+    =
+    g\left(\btheta\right)^N
+    \left(\prod_{i=1}^N f\left(\bx_i\right)\right)
+    \mathrm{exp}\left[
+        \beeta\left(\btheta\right)
+        \sum_{i=1}^N \bT\left(\bx_i\right)
+    \right]
+    .
+\end{align}
+We can view $\prod f\left(\bx_i\right)$ as a normalization factor in the likelihood.
+We see then that in effect the likelihood depends only on $\bx$
+through $\bT_N \equiv \sum_i \bT\left(\bx_i\right)$.
+This makes $\bT_N$ a \textbf{sufficient statistic} for the exponential
+family of distributions.
+A sufficient (set of) statistic(s) completey describe the likelihood
+(or probability distribution).
+%--------------------------------------------------------------------
+\subsection{Uniform distribution}
+The uniform distribution finds widespread use mostly because it is
+simple to manipulate and simple in understand.
+The uniform distribution is also commonly used as a ``non-informative prior''
+(see Chpt.~\ref{chap:bayesian-overview}). 
+
+The uniform distribution over the interval $\left(a,b\right)$
+is denoted by $U\left(a,b\right)$. We write $X\sim U\left(a,b\right)$.
+The PDF is
+\begin{align}
+    f_X\left(x;a,b\right)
+    =
+    \begin{cases}
+        a<x<b & \frac{1}{b-a}
+        \\
+        \mathrm{otherwise} & 0
+    \end{cases}
+    .
+\end{align}
+The characteristic function is
+\begin{align}
+    \psi_{X}\left(t\right)
+    &=
+    \int_{-\infty}^{\infty}dx e^{ix t} f_{X}\left(x\right)
+    \nonumber\\
+    &=
+    \frac{1}{b-a}\int_{a}^{b}dx e^{ix t}
+    \nonumber\\
+    &=
+    \frac{1}{b-a} \frac{e^{ibt} - e^{iat}}{it}
+    .
+\end{align}
+The mean and variance are
+\begin{align}
+    \mu
+    =
+    \mathbb{E}\left[x\right]
+    =&
+    \frac{b+a}{2}
+    ,\\
+    \sigma^2
+    =
+    \mathbb{E}\left[\left(x-\mu\right)^2\right]
+    =&
+    \frac{\left(b-a\right)^2}{12}
+    .
+\end{align}
+From the mean and variance, we can determine $a,b$, and hence $U\left(a,b\right)$.
+We see that $\mu,\sigma^2$ form a sufficient set of statistics.
+%--------------------------------------------------------------------
+\subsection{Multivariate normal distribution}
+Many observed quantities in nature are approximately distrbuted according
+to the normal (or Gaussian) distribution.
+That the normal distribution appears so commonly in practice can be at least
+partially explained in part by the central limit theorem
+(see Appendix.~\ref{chap:probability-theory}): the normal distribution is the
+limiting distribution
+of the mean of a large number of random variables drawn from any distribution
+with a finite mean and variance.
+This being said, there are plenty of cases where this does not happen, 
+that is one may not be drawing from a random variable that is effectively the average of many of random variables of finite mean and variance.
+So while the normal distribution is commonly found in practice, it is certainly not the only probability distribution one encounters in practice. 
+
+The multivariate normal distribution in $\mathbb{R}^k$ with mean 
+$\bmu$ and covariance matrix $\bSigma$ is denoted by $N_k\left(\bmu,\bSigma\right)$.
+The PDF is
+\begin{align}
+    f_{\bX}\left(\bx;\bmu,\bSigma\right)
+    =
+    \left(2\pi \det\bSigma\right)^{-1/2}
+    \mathrm{exp}\left[
+        -
+        \frac{1}{2}\left(\bx - \bmu\right)^T\bSigma^{-1}\left(\bx - \bmu\right)
+    \right]
+    .
+\end{align}
+The characteristic function for the multivariate normal distribution plays an important role in the proof of the central limit theorem that we review in Appendix~\ref{chap:probability-theory}. 
+The characteristic function is
+\begin{align}
+    \label{eq:characteristic-function-multivariate-normal}
+    \psi_{\bX}\left(\bt\right)
+    =&
+    \int_{-\infty}^{\infty}d^kx 
+        e^{i\bt^T\bx}f_{\bX}\left(\bx\right)
+    \nonumber\\
+    =&
+    \int_{-\infty}^{\infty}d^kx 
+        \frac{1}{\sqrt{2\pi}|\det\bSigma|} 
+        \mathrm{exp}\left[
+            i\bt^T\bx
+            -
+            \frac{1}{2}\left(\bx-\bmu\right)^T\bSigma^{-1}\left(\bx-\bmu\right)
+        \right]
+    \nonumber\\
+    =&
+    \mathrm{exp}\left[
+        i\bt^T\bmu
+        + 
+        i^2\frac{1}{2}\bt^T\bSigma\bt
+    \right]
+    \nonumber\\
+    & \times \int_{-\infty}^{\infty}d^kx 
+        \frac{1}{\sqrt{2\pi}|\det\bSigma|} 
+        \mathrm{exp}\left[
+            -
+            \frac{1}{2}
+            \left(\bx-i\bSigma\bt-\bmu\right)^T
+            \bSigma^{-1}
+            \left(\bx-i\bSigma\bt-\bmu\right)
+        \right]
+    \nonumber\\
+    =&
+    \mathrm{exp}\left[
+        i\bt^T\bmu 
+        + 
+        i^2\frac{1}{2}\bt^T\bSigma\bt
+    \right]
+    .
+\end{align}
+The mean and covariance matrix are just $\bmu$ and $\bSigma$,
+\begin{align}
+    \bmu
+    =
+    \mathbb{E}\left[\bx\right]
+    &=
+    \bmu
+    ,\\
+    \bSigma
+    =
+    \mathbb{E}\left[\left(\bx-\bmu\right)^T\left(\bx-\bmu\right)\right]
+    &=
+    \bSigma
+    .
+\end{align}
+Clearly $\mu,\sigma^2$ form a sufficient set of statistics for the
+normal distribution.
+%--------------------------------------------------------------------
+\subsection{Chi-square distribution}
+The chi-square distribution describes the distribution of the sum of
+the normalized, squared deviates from the mean of draws from the
+normal distribution.
+The chi-square distribution can be used to diagnose how well a given
+data set is approximated by the normal distribution with a given mean and variance.
+
+Let $X_1,...,X_N$ be independent samples drawn from $N\left(\mu,\sigma\right)$. 
+We define the random variable
+\begin{align}
+    \label{eq:Q_N_def}
+    Q_N 
+    \equiv
+    \sum_{i=1}^N\frac{\left(X_i-\mu\right)^2}{\sigma^2}
+    .
+\end{align}
+The variable $Q_N$ is then distributed according to the chi-square distribution
+with $N$ degrees of freedom, $Q_N\sim\chi_N^2$.
+Understanding how the chi-squared PDF is derived is somewhat interesting, so we outline the details of the derivation here.
+To find the PDF for $Q_N$, $f_{Q_N}$, we first convert to the normalized variables
+\begin{align}
+    Z_i = \frac{X_i-\mu}{\sigma}
+    .
+\end{align}
+The constraint \eqref{eq:Q_N_def} then is
+\begin{align}
+    \label{eq:Q_N_Z}
+    Q_N
+    =
+    \sum_{i=1}^NZ_i^2
+    .
+\end{align}
+
+We could apply the change of variables formula \eqref{eq:change-of-variable-pdf}
+to find $f_{Q_N}$.
+It is slightly easier to start from the observation that we want
+\begin{align}
+    \label{eq:relation-fq-fz}
+    f_{Q_N}d Q_N
+    =
+    \prod_{i=1}^N f_{Z_i} dZ_i
+    ,
+\end{align}
+subject to the constraint \eqref{eq:Q_N_Z}.
+We then convert to spherical polar coordinates. 
+We set the radius $R^2=Q_N$, and then a set of $N-1$ angular coordinates $\theta_j$ 
+In spherical polar coordinates,
+the constraint \eqref{eq:Q_N_Z} is particular simple: it just constrains the
+radius to a constant value $R=\sqrt{Q_N}$. The differential volume 
+$dZ_1\cdots dZ_N$ then reduces to the area of the $(N-1)$-sphere at radius $R$, $S_{N-1}\left(R\right)$, 
+multiplied by $dR$
+Then \eqref{eq:relation-fq-fz} reduces to
+\begin{align}
+    f_{Q_N}dQ_N
+    =&
+    S_{N-1}\left(R\right) dR \prod_i^N f_{Z_i}
+    .
+\end{align}
+We have $dR = dQ_N / (2 Q_N^{1/2})$ and
+\begin{align}
+    \prod_i^N f_{Z_i}
+    &=
+    \left(2\pi\right)^{-N/2} 
+    \mathrm{exp}\left(
+        -\frac{1}{2}\sum_{i=1}^NZ_i^2
+    \right)
+    \nonumber\\
+    &=
+    \left(2\pi\right)^{-N/2} 
+    \mathrm{exp}\left(
+        -\frac{1}{2}Q_N
+    \right)
+    .
+\end{align}
+Finally we note that
+\begin{align}
+    S_{N-1}\left(R\right)
+    =
+    \frac{2R^{N-1}\pi^{N/2}}{\Gamma\left(N/2\right)}
+    ,
+\end{align}
+where $\Gamma$ is the Gamma function.
+We conclude that the chi-square distribution with $N$ degrees of freedom is
+\begin{align}
+    \label{eq:chi-square-distribution}
+    f_{Q_N}\left(q_N\right)
+    =
+    \frac{1}{2^{N/2}\Gamma\left(N/2\right)}q_N^{N/2-1} e^{-q_N/2}
+    .
+\end{align}
+Remember this is the distribution for the squared normalized deviates from the mean, \eqref{eq:Q_N_def},
+and that we are restricting $q_N$ to the positive real line.
+Notice that for $N>2$, \eqref{eq:chi-square-distribution} is not peaked at $q_N=0$. 
+
+More quantitatively, the mean and variance of the chi-squared distribution are
+\begin{align}
+    \mu
+    =
+    \mathbb{E}\left[q_N\right]
+    =&
+    N
+    ,\\
+    \sigma^2
+    =
+    \mathbb{V}\left[\left(q_N-\mu\right)^2\right]
+    =&
+    2N
+    .
+\end{align}
+Notice that the mean grows as $N$ increases.
+%--------------------------------------------------------------------
+\subsection{Student's t-distribution}
+
+The chi-square distribution describes the distribution of \eqref{eq:Q_N_def},
+that is the sum of the normalized square deviates from the sample mean.
+Notice that in \eqref{eq:Q_N_def} we assumed that the random
+variables $X_i$ were drawn from $N\left(\mu,\sigma^2\right)$, as we
+assumed that we knew $\mu$ and $\sigma^2$. 
+ 
+
+%--------------------------------------------------------------------
+\subsection{Beta distribution}
+%--------------------------------------------------------------------
+\section{Discrete distributions}
+%--------------------------------------------------------------------
+\subsection{Binomial distribution}
+%--------------------------------------------------------------------
+\subsection{Poisson distribution}

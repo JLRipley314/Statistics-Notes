@@ -1,0 +1,202 @@
+\documentclass[12pt]{report}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
+\usepackage{bm}
+\usepackage{multirow,booktabs}
+\usepackage[table]{xcolor}
+\usepackage{fullpage}
+\usepackage{lastpage}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{wrapfig}
+\usepackage{setspace}
+\usepackage{calc}
+\usepackage{multicol}
+\usepackage{cancel}
+\usepackage[retainorgcmds]{IEEEtrantools}
+\usepackage[margin=3cm]{geometry}
+\newlength{\tabcont}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.05in}
+\usepackage{empheq}
+\usepackage{framed}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\colorlet{shadecolor}{orange!15}
+\parindent 0in
+\parskip 12pt
+\geometry{margin=1in, headsep=0.25in}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{reg}{Rule}
+\newtheorem{exer}{Exercise}
+\newtheorem{note}{Note}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{braket}
+\usepackage{hyperref}
+\usepackage{algpseudocode}
+
+\newcommand{\balpha}{{\bm \alpha}}
+\newcommand{\bbeta}{{\bm \beta}}
+\newcommand{\beeta}{{\bm \eta}}
+\newcommand{\bgamma}{{\bm \gamma}}
+\newcommand{\bGamma}{{\bm \Gamma}}
+\newcommand{\bdelta}{{\bm \delta}}
+\newcommand{\bxi}{{\bm \xi}}
+\newcommand{\bXi}{{\bm \Xi}}
+\newcommand{\bchi}{{\bm \chi}}
+\newcommand{\btheta}{{\bm \theta}}
+\newcommand{\bTheta}{{\bm \Theta}}
+\newcommand{\blambda}{{\bm \lambda}}
+\newcommand{\bLambda}{{\bm \Lambda}}
+\newcommand{\bmu}{{\bm \mu}}
+\newcommand{\bsigma}{{\bm \sigma}}
+\newcommand{\bSigma}{{\bm \Sigma}}
+\newcommand{\bphi}{{\bm \phi}}
+\newcommand{\bPhi}{{\bm \Phi}}
+\newcommand{\bpsi}{{\bm \psi}}
+\newcommand{\bPsi}{{\bm \Psi}}
+
+\newcommand{\ba}{{\bm a}}
+\newcommand{\bb}{{\bm b}}
+\newcommand{\bc}{{\bm c}}
+\newcommand{\bd}{{\bm d}}
+\newcommand{\be}{{\bm e}}
+\newcommand{\bg}{{\bm g}}
+\newcommand{\bn}{{\bm n}}
+\newcommand{\bs}{{\bm s}}
+\newcommand{\bt}{{\bm t}}
+\newcommand{\bu}{{\bm u}}
+\newcommand{\bv}{{\bm v}}
+\newcommand{\bw}{{\bm w}}
+\newcommand{\bx}{{\bm x}}
+\newcommand{\by}{{\bm y}}
+\newcommand{\bz}{{\bm z}}
+\newcommand{\bA}{{\bm A}}
+\newcommand{\bB}{{\bm B}}
+\newcommand{\bC}{{\bm C}}
+\newcommand{\bD}{{\bm D}}
+\newcommand{\bE}{{\bm E}}
+\newcommand{\bF}{{\bm F}}
+\newcommand{\bG}{{\bm G}}
+\newcommand{\bH}{{\bm H}}
+\newcommand{\bN}{{\bm N}}
+\newcommand{\bS}{{\bm S}}
+\newcommand{\bT}{{\bm T}}
+\newcommand{\bU}{{\bm U}}
+\newcommand{\bV}{{\bm V}}
+\newcommand{\bW}{{\bm W}}
+\newcommand{\bX}{{\bm X}}
+\newcommand{\bY}{{\bm Y}}
+\newcommand{\bZ}{{\bm Z}}
+
+\hypersetup{
+colorlinks   = true, %Colours links instead of ugly boxes
+urlcolor     = blue, %Colour for external hyperlinks
+linkcolor    = blue, %Colour of internal links
+citecolor   = green %Colour of citations
+}
+
+\allowdisplaybreaks
+
+\graphicspath{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{Notes on statistics}
+\date{\today}
+\author{Justin L. Ripley \\ ripley@illinois.edu}
+
+\maketitle
+
+\tableofcontents
+
+\abstract{I briefly review some of the basic notions of 
+parametric Bayesian statistical inference that have come up in my research.
+These notes are not self contained and remain a work in progress! 
+I assume some familiarity with probability
+theory and statistics, on the level of the first few chapters of
+\cite{wasserman2010statistics}. 
+I may sometimes implicitly assume some knowledge of differential geometry
+and partial differential equations.
+I try to cite sources whenever possible (whenever I can remember the source
+I learned something from), although the purpose of these notes
+are to serve more as a statistics ``cheat sheet'' than a formal review.
+If you think I am missing a reference please let me know.
+Please contact me if you find any errors! 
+
+The notation is: vectors/tensors are in \textbf{boldfont}. 
+Indices are denoted with lower case latin letters, e.g. the $i^{th}$ component of the vector
+$\bv$ is $\left(\bv\right)_i = v_i$. We typically do not use boldfont when we explicitely
+write down indices.
+Repeated indices are summed over.
+Capital $P$ always represents a probability distribution, $\bx$ always
+represents an instantiation of measured data, $\btheta$ always represents
+model parameters. More generally, model parameters are represented by 
+greek letters, while data is represented by latin letters. 
+Random variables are always capatalized. Partial derivatives are denoted
+by $\partial$, and covariant derivatives by $\nabla_i$ (for our purposes,
+you can usually replace covariant derivatives with partial derivatives).
+
+I thank Rohit Chandramouli for helpful conversations, and a lecture on
+model selection that inspired the creation of these notes, 
+and Simone Mezzasoma for helpful comments that have led to a clearer presentation.
+
+Copyright 2023 Justin Ripley. 
+You may copy and distribute this document provided that you make no changes to it.
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Overview of parametric Bayesian statistics}
+\label{chap:bayesian-overview}
+\input{Bayesian-Overview/Bayesian-Overview.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Model comparison}
+\label{chap:model-comparison}
+\input{Model-Comparison/Model-Comparison.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Forecasting}
+\label{chap:forecasting}
+\input{Forecasting/Forecasting.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Times series analysis}
+\label{chap:time-series-analysis}
+\input{Time-Series-Analysis/Time-Series-Analysis.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Numerical integration}
+\label{chap:numerical-integration}
+\input{Numerical-Integration/Numerical-Integration.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Numerical optimization}
+\label{chap:numerical-optmization}
+\input{Numerical-Optimization/Numerical-Optimization.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Probability theory}
+\label{chap:probability-theory}
+\input{Probability-Theory/Probability-Theory.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Common probability distributions}
+\label{chap:probability-distributions}
+\input{Probability-Distributions/Probability-Distributions.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Fourier and other transforms}
+\label{chap:fourier-transforms}
+\input{Fourier-Transforms/Fourier-Transforms.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Stationary phase approximation}
+\label{chap:stationary-phase}
+\input{Stationary-Phase/Stationary-Phase.tex}
+
+\cleardoublepage 
+\bibliographystyle{alpha}  
+\bibliography{thebib}  %assuming your bibtex file is thesis.bib
+
+\end{document}

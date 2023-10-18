@@ -1,0 +1,120 @@
+%===============================================================================
+\section{Stationary phase approximation}
+
+Here we review the \textbf{stationary phase approximation} for the Fourier transform. 
+For more discussion see \cite{bender1999advanced}.
+Consider a complex function, which we write as
+\begin{align}
+    B\left(t\right) 
+    =
+    A\left(t\right)e^{i\phi\left(t\right)}
+    .
+\end{align}
+The Fourier transform is
+\begin{align}
+    \label{eq:FT-B}
+    \tilde{B}\left(f\right)
+    =
+    \int_{-\infty}^{\infty}dt A\left(t\right) e^{i\phi\left(t\right) - 2\pi i ft}
+    .
+\end{align}
+We imagine $A\left(t\right)$ is a slowly varying function, while $\phi\left(t\right)$
+is rapidly varying. We then expect that the integral for $\tilde{B}\left(f\right)$
+will be dominated by the stationary points of $\phi\left(t\right) - 2\pi ft$,
+that is the points where
+\begin{align}
+\label{eq:stationary-points-phi}
+    \frac{d\phi}{dt}
+    -
+    2\pi f
+    =
+    0
+    .
+\end{align}
+This can be more formally justified by the Riemann-Lebesgue lemma, 
+which states that 
+\begin{align}
+    \lim_{x\to\infty}\int_{a}^{b} dt e^{ixt}A\left(t\right)
+    =
+    0
+    ,
+\end{align}
+provided $\int_a^bdt A\left(t\right)$ exists. 
+We can extend $a,b\to\pm\infty$ so long as $A\left(t\right)$ is integrable.
+Going back to \eqref{eq:FT-B}, we assume that $\phi\left(t\right) - 2\pi f t$
+has one stationary point for each value of $f$, which we call $t_0\left(f\right)$.
+That is, $t_0\left(f\right)$ is defined to solve the stationary phase equation 
+\begin{align}
+    \frac{d\phi}{dt}\Big|_{t=t_0}
+    -
+    2\pi f
+    =
+    0
+    .
+\end{align}
+We Taylor series expand about the stationary point to quadratic order in $\phi$,
+\begin{align}
+    \phi\left(t\right)
+    -
+    2\pi ft
+    =
+    \phi\left(t_0\right)
+    -
+    2\pi ft_0
+    +
+    \frac{1}{2}\frac{d^2\phi}{dt^2}\Big|_{t=t_0}\left(t-t_0\right)^2
+    +
+    \mathcal{O}\left[\left(t-t_0\right)^3\right] 
+    ,
+\end{align}
+insert this into \eqref{eq:FT-B}, and obtain
+\begin{align}
+    \tilde{B}\left(f\right)
+    \approx&
+    A\left(t_0\right) e^{i\phi\left(t_0\right) - 2\pi i f t_0}
+    \int_{-\infty}^{\infty} dt 
+    \exp\left[
+        i \frac{1}{2}\frac{d^2\phi}{dt^2}\Big|_{t=t_0}\left(t-t_0\right)^2
+    \right]
+    \nonumber\\
+    =&
+    \left[\frac{1}{2}\frac{d^2\phi}{dt^2}\Big|_{t=t_0}\right]^{-1/2}
+    A\left(t_0\right) e^{i\phi\left(t_0\right) - 2\pi i f t_0 + i\pi/4}
+    \int_{-\infty}^{\infty} dx e^{-x^2} 
+    \nonumber\\
+    =&
+    \left[\frac{1}{2\pi}\frac{d^2\phi}{dt^2}\Big|_{t=t_0}\right]^{-1/2}
+    A\left(t_0\right) e^{i\phi\left(t_0\right) - 2\pi i f t_0 + i\pi/4}
+    .
+\end{align}
+Using the chain rule, we can write $\phi\left(t_0\right)$ and $t_0$ 
+as integral equations in terms of the frequency. We have
+\begin{subequations}
+\begin{align}
+    t_0\left(f\right)
+    =&
+    \int^f df^{\prime}\frac{dt}{df}
+    ,\\
+    \phi\left(t_0\right)
+    =&
+    2\pi \int^f df^{\prime} \frac{dt}{df} f^{\prime}  
+    .
+\end{align}
+\end{subequations}
+Defining $\dot{f}\equiv df/dt$, we see that we can write the phase of
+$\tilde{B}\left(f\right)$ as
+\begin{align}
+    \Psi
+    \equiv&
+    \phi\left(t_0\right)
+    -
+    2\pi f t_0 
+    +
+    \frac{\pi}{4}
+    \nonumber\\
+    =&
+    2\pi \int^f df^{\prime} \frac{1}{\dot{f}}\left( f^{\prime} - f \right)
+    +
+    \frac{\pi}{4}
+    .
+\end{align}
