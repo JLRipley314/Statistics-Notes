@@ -135,6 +135,7 @@ of the local minimum.
 In gradient descent then, we pick a fiducial value of $\btheta_0$, and then
 iterate the following
 \begin{align}
+    \label{eq:gd-step}
     \btheta_{n+1}
     =
     \btheta_n
@@ -155,12 +156,32 @@ If $\gamma_n$ is too small, the method converges very slowly.
 If $\gamma_n$ is too large, the method may never converge.
 
 %==============================================================================
+\section{Stochastic gradient descent\label{sec:stochastic-gradient-descent}}
+
+Typically the gradient descent algorithm described in \eqref{sec:gradient-descent} will only find a local minimum of the target function $\ell\left(\btheta\right)$.
+The idea behind stochastic gradient descent is to not take the full gradient of $\ell\left(\btheta\right)$ when taking the step \eqref{eq:gd-step}.
+That is, one instead computes 
+\begin{align}
+    g^{\mathcal{I}_n}_{n,i}
+    \equiv
+    \nabla_i\ell\left(\btheta\right)\Big|_{\btheta=\btheta_n}\delta_{\mathcal{I}_ni}
+    ,
+\end{align}
+where $\delta_{\mathcal{I}_ni}=1$ if $i\in\mathcal{I}_n$ and is zero otherwise.
+Here $\mathcal{I}_n$ is a randomly chosen set if indices $\left\{i_{1,n},...i_{k,n}\right\}$.
+At each step we change the set $\mathcal{I}_n$. 
+In stochastic gradient descent we then effectively take jumps in parameter space down randomly chosen gradients of the target function.
+Empirically, in many cases this allows the algorithm to jump out of local minima and saddle points of the target function.
+While there is no general method to determine if the algorithm has reached a global minimum, it almost always finds a minimum that is smaller than could be found with a simple gradient descent method.
+
+In practice, a common way to use the algorithm is to pre-set several batches of indices $\mathcal{I}_1,...,\mathcal{I}_p$, and then to shuffle through those sets in each iteration.
+The simplicity and effectiveness of stochastic gradient descent makes it a widely used algorithm. 
+
+%==============================================================================
 \section{Newton's method\label{sec:newtons-method}}
 
-We next consider a quadratic method for finding local minima--Newton's method
-(this is Newton's method for optimizing a function, not for finding the root to a function).
-To understand this method, we Taylor series expand the negative log likelihood
-about a fiducial point $\btheta_0$
+We next consider a quadratic method for finding local minima--Newton's method (this is Newton's method for optimizing a function, not for finding the root to a function).
+To understand this method, we Taylor series expand the negative log likelihood about a fiducial point $\btheta_0$
 \begin{align}
     \label{eq:quadratic-taylor-vector}
     \ell 
@@ -187,8 +208,7 @@ where
     .
 \end{align}
 We choose $\btheta$ to minimize the quadratic Taylor series expansion.
-\emph{Assuming} that $\bH_0$ is positive definite, minimizing the quadratic
-Taylor series expansion is an exercise in minimizing a convex function.
+\emph{Assuming} that $\bH_0$ is positive definite, minimizing the quadratic Taylor series expansion is an exercise in minimizing a convex function.
 The minimum is then located at the zero of the gradient of the second order Taylor series.
 We find that
 \begin{align}
@@ -198,26 +218,17 @@ We find that
     .
 \end{align}
 This motivates \textbf{Newton's method}.
-Starting with a fiducial point $\btheta_0$, we iterate in $\btheta_n$, where
-at each iteration we set 
+Starting with a fiducial point $\btheta_0$, we iterate in $\btheta_n$, where at each iteration we set 
 \begin{align}
     \btheta_{n+1} = \btheta_n - \gamma_n \bH_n^{-1} \bg_n
     .
 \end{align}
 Where $0<\gamma_n\leq1$
 is a scalar that one can introduce to make the change between steps be less large.
-We stop iterating when $\left|\btheta_{n+1}-\btheta_n\right|<\epsilon$, where
-$\left|\cdots\right|$ is a norm of our choosing and $0<\epsilon$ is a pre-set tolerance.
+We stop iterating when $\left|\btheta_{n+1}-\btheta_n\right|<\epsilon$, where $\left|\cdots\right|$ is a norm of our choosing and $0<\epsilon$ is a pre-set tolerance.
 
-As with the gradient descent method, Newton's method may only find a local
-minimum of saddle point. 
+As with the gradient descent method, Newton's method may only find a local minimum of saddle point. 
 There are also numerous technical problems with inversion of the Hessian.
-First, the Hessian matrix may be very large if there are many parameters,
-so it could be hard to invert (it may be ill conditioned). 
-Additionally the Hessian could be singular,
-or nearly singular.
-We note that the Hessian may not be positive definite either at a given point
-(it often won't be), which in principle isn't
-fatal to the method, but depending on the size of the eigenvalues to the
-Hessian, large negative eigenvalues could dramatically change the
-value of $\btheta_{n+1}$ versus $\btheta_n$.
+First, the Hessian matrix may be very large if there are many parameters, so it could be hard to invert (it may be ill conditioned). 
+Additionally the Hessian could be singular, or nearly singular.
+We note that the Hessian may not be positive definite either at a given point (it often won't be), which in principle isn't fatal to the method, but depending on the size of the eigenvalues to the Hessian, large negative eigenvalues could dramatically change the value of $\btheta_{n+1}$ versus $\btheta_n$.

@@ -51,8 +51,88 @@ we can view $P\left(\btheta|\bx\right)$ as the distribution of
 model parameters given a model $P\left(\bx|\btheta\right)$,
 and some prior knowledge of the model parameters $P\left(\btheta\right)$.
 %--------------------------------------------------------------------
-\section{Change of variables}
+\section{Cumulative distribution function}
 
+The \textbf{cumulative distribution function} (CDF) $F$ for a probability distribution function $f_{\bTheta}$ is
+\begin{align}
+    F_{\bTheta}\left(\xi\right)
+    &=
+    P\left(\btheta < \bF^{-1}_{\bTheta}\left(\xi\right)\right)
+    \nonumber\\
+    &=
+    \int_{P\left(\btheta\right)<\xi} d^k\theta f_{\bTheta}\left(\btheta\right)
+    ,
+\end{align}
+where
+\begin{align}
+    \bF^{-1}_{\bTheta}\left(\xi\right)
+    \equiv
+    \inf\left\{\btheta \; : \; F_{\bTheta}\left(\btheta\right) \geq \xi\right\}
+    .
+\end{align}
+Note that $F_{\bTheta}\left(\bF^{-1}_{\bTheta}\left(\btheta\right)\right) = \btheta$.
+Sometimes in the literature you'll see $F^{-1}_{\bTheta}\left(\xi\right)$ -- which we can efectively think of as the inverse of the CDF -- is called the \textbf{percent point function}.
+
+The \textbf{probability integral transform} states that the random variable $\Xi$ defined to be
+\begin{align}
+    \Xi = F_{\bTheta}\left(\xi\right)
+    ,
+\end{align}
+has the standard uniform distribution, that is $\Xi\sim U\left(0,1\right)$.
+To prove this, we look at the CDF of $\xi$
+\begin{align}
+    F_{\Xi}\left(\xi\right)
+    &=
+    P\left(\Xi < \xi\right)
+    \nonumber\\
+    &=
+    P\left(F_{\bTheta}\left(\btheta\right) < \xi\right)
+    \nonumber\\
+    &=
+    P\left(\btheta < \bF^{-1}_{\bTheta}\left(\xi\right)\right)
+    \nonumber\\
+    &=
+    F_{\bTheta}\left(\bF^{-1}_{\bTheta}\left(\xi\right)\right)
+    \nonumber\\
+    &=
+    \xi
+    .
+\end{align}
+We see that the CDF of $F_{\Xi}\left(\xi\right)$ is the same
+as the CDF for the uniform distribution $U\left(0,1\right)$.
+We conclude that $\Xi\sim U\left(0,1\right)$.
+This fact is used in the nested sampling integration algorithm,
+which we discussed in Chpt.~\ref{chap:numerical-integration}.
+
+%--------------------------------------------------------------------
+\section{Functions of random variables}
+
+We consider two random (scalar) variables $X$ and $Y$, with the join PDF $f_{X,Y}\left(x,y\right)$.
+Our goal is to find the PDF of the function $Z\left(X,Y\right)$ (generalizing to functions of a larger number of random variables is straighforward).
+To find this, we first determine the set
+\begin{align}
+    A_{z}
+    =
+    \left\{\left(x,y\right) \; : \; Z\left(x,y\right) \leq z\right\}
+    .
+\end{align}
+Given this, we can then compute the CDF
+\begin{align}
+    F_Z\left(z\right)
+    =
+    \int_{A_z} dx dy f_{X,Y}\left(x,y\right)
+    .
+\end{align}
+From the CDF we can then compute the PDF by taking the derivative of the CDF
+\begin{align}
+    f_Z\left(z\right) = \frac{d}{dz}F_Z\left(z\right)
+    .
+\end{align}
+%--------------------------------------------------------------------
+\section{Change of variables for injective mappings}
+
+If we restrict ourselves to injective mappings between random variables, we can derive a simple closed-form expression for the PDF of a variable $\bPsi\left(\bTheta\right)$.
+Notice that we do not need to restrict ourselves to scalar random variables here.
 Consider a PDF $f_{\bTheta}\left(\btheta\right)$.
 What is the probability distribution to $P\left(\bpsi\left(\btheta\right)\right)$,
 where $\bpsi$ is some function of $\btheta$?
@@ -120,60 +200,6 @@ From Bayes theorem \eqref{eq:Bayes-theorem-2}, we then have
 \end{align}
 That is, to find the probability distribution for some function of the distribution parameters, we only need to find the probability distribution for the prior under that change in coordinates. 
 
-%--------------------------------------------------------------------
-\section{Cumulative distribution function}
-
-The \textbf{cumulative distribution function} (CDF) $F$ for a probability distribution function $f_{\bTheta}$ is
-\begin{align}
-    F_{\bTheta}\left(\xi\right)
-    &=
-    P\left(\btheta < \bF^{-1}_{\bTheta}\left(\xi\right)\right)
-    \nonumber\\
-    &=
-    \int_{P\left(\btheta\right)<\xi} d^k\theta f_{\bTheta}\left(\btheta\right)
-    ,
-\end{align}
-where
-\begin{align}
-    \bF^{-1}_{\bTheta}\left(\xi\right)
-    \equiv
-    \inf\left\{\btheta \; : \; F_{\bTheta}\left(\btheta\right) \geq \xi\right\}
-    .
-\end{align}
-Note that $F_{\bTheta}\left(\bF^{-1}_{\bTheta}\left(\btheta\right)\right) = \btheta$.
-Sometimes in the literature you'll see $F^{-1}_{\bTheta}\left(\xi\right)$ -- which we can efectively think of as the inverse of the CDF -- is called the \textbf{percent point function}.
-
-The \textbf{probability integral transform} states that the random
-variable $\Xi$ defined to be
-\begin{align}
-    \Xi = F_{\bTheta}\left(\xi\right)
-    ,
-\end{align}
-has the standard uniform distribution, that is $\Xi\sim U\left(0,1\right)$.
-The CDF of $\xi$ is
-\begin{align}
-    F_{\Xi}\left(\xi\right)
-    &=
-    P\left(\Xi < \xi\right)
-    \nonumber\\
-    &=
-    P\left(F_{\bTheta}\left(\btheta\right) < \xi\right)
-    \nonumber\\
-    &=
-    P\left(\btheta < \bF^{-1}_{\bTheta}\left(\xi\right)\right)
-    \nonumber\\
-    &=
-    F_{\bTheta}\left(\bF^{-1}_{\bTheta}\left(\xi\right)\right)
-    \nonumber\\
-    &=
-    \xi
-    .
-\end{align}
-We see that the CDF of $F_{\Xi}\left(\xi\right)$ is the same
-as the CDF for the uniform distribution $U\left(0,1\right)$.
-We conclude that $\Xi\sim U\left(0,1\right)$.
-This fact is used in the nested sampling integration algorithm,
-which we discussed in Chpt.~\ref{chap:numerical-integration}.
 
 %--------------------------------------------------------------------
 \section{Expectation and covariance}

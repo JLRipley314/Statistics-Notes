@@ -530,7 +530,7 @@ One of the tricky things to understand about the nested sampling method is the v
 Consider a sample from $p\left(\btheta\right)$: $\left\{\theta_j\right\}$, subject to
 $L\left(\btheta_j\right)>L_{min,j-1}$. 
 So long as we draw $\btheta_j$ from $p\left(\btheta\right)$
-subjecto to the constraint $L\left(\btheta\right)>L_j$,
+subject to to the constraint $L\left(\btheta\right)>L_j$,
 the values of the volumes $X\left(\btheta_j\right)$ are drawn from $U\left(0,X_{j-1}\right)$.
 This follows from the \textbf{probability integral transform}, which we review
 in Chptr.~\ref{chap:probability-theory}.
@@ -576,7 +576,7 @@ We take the expectation of the log of $X_j$, to simplify the calculation of the 
     \sum_{i=1}^j \mathbb{E}\left[\log t_i\right]
     .
 \end{align}
-As the $t_i$ are independt, we can estimate the error of this approximation by 
+As the $t_i$ are independent, we can estimate the error of this approximation by 
 computing the variance
 \begin{align}
     \mathbb{V}\left[\log X_j\right]
