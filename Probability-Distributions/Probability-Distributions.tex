@@ -4,8 +4,8 @@ We briefly review some common probability distributions and some of their proper
 \section{Continuous distributions}
 %--------------------------------------------------------------------
 \subsection{Exponential family of distributions}
-A large number of PDFs fall under the exponential family, so we
-begin by reviewing this class of distributions. 
+
+A large number of PDFs fall under the exponential family, so we begin by reviewing this class of distributions. 
 The PDF of the exponential family of distributions take the form
 \begin{align}
     f_{\bX}\left(\bx;\btheta\right)
@@ -16,11 +16,9 @@ The PDF of the exponential family of distributions take the form
     .
 \end{align}
 A large number of PDFs fall under the exponential family. 
-The functional form of $h,g,\beeta,\bT$ determine the particular
-instantiation of the distribution.
+The functional form of $h,g,\beeta,\bT$ determine the particular instantiation of the distribution.
 The vector $\beeta$ is called the \textbf{natural parameter} of the exponential family.
-Consider a sequence of $N$ independent and identical draws (IID) from 
-an expoential family.
+Consider a sequence of $N$ independent and identical draws (IID) from an expoential family.
 The likelihood is
 \begin{align}
     \mathcal{L}
@@ -34,21 +32,15 @@ The likelihood is
     .
 \end{align}
 We can view $\prod f\left(\bx_i\right)$ as a normalization factor in the likelihood.
-We see then that in effect the likelihood depends only on $\bx$
-through $\bT_N \equiv \sum_i \bT\left(\bx_i\right)$.
-This makes $\bT_N$ a \textbf{sufficient statistic} for the exponential
-family of distributions.
-A sufficient (set of) statistic(s) completey describe the likelihood
-(or probability distribution).
+We see then that in effect the likelihood depends only on $\bx$ through $\bT_N \equiv \sum_i \bT\left(\bx_i\right)$.
+This makes $\bT_N$ a \textbf{sufficient statistic} for the exponential family of distributions.
+A sufficient (set of) statistic(s) completey describe the likelihood (or probability distribution).
 %--------------------------------------------------------------------
 \subsection{Uniform distribution}
-The uniform distribution finds widespread use mostly because it is
-simple to manipulate and simple in understand.
-The uniform distribution is also commonly used as a ``non-informative prior''
-(see Chpt.~\ref{chap:bayesian-overview}). 
+The uniform distribution finds widespread use mostly because it is simple to manipulate and simple in understand.
+The uniform distribution is also commonly used as a ``non-informative prior'' (see Chpt.~\ref{chap:bayesian-overview}). 
 
-The uniform distribution over the interval $\left(a,b\right)$
-is denoted by $U\left(a,b\right)$. We write $X\sim U\left(a,b\right)$.
+The uniform distribution over the interval $\left(a,b\right)$ is denoted by $U\left(a,b\right)$. We write $X\sim U\left(a,b\right)$.
 The PDF is
 \begin{align}
     f_X\left(x;a,b\right)
@@ -291,12 +283,19 @@ Notice that the mean grows as $N$ increases.
 %--------------------------------------------------------------------
 \subsection{Student's t-distribution}
 
-The chi-square distribution describes the distribution of \eqref{eq:Q_N_def},
-that is the sum of the normalized square deviates from the sample mean.
-Notice that in \eqref{eq:Q_N_def} we assumed that the random
-variables $X_i$ were drawn from $N\left(\mu,\sigma^2\right)$, as we
-assumed that we knew $\mu$ and $\sigma^2$. 
- 
+The chi-square distribution describes the distribution of \eqref{eq:Q_N_def}, that is the sum of the normalized square deviates from the sample mean.
+We now consider the problem of inferring the posterior probability for the mean and variance of normal distribution, given data $D=\{x_1,...,x_N\}$. 
+Notice that in \eqref{eq:Q_N_def} we assumed that the random variables $X_i$ were drawn from $N\left(\mu,\sigma^2\right)$, as we assumed that we knew $\mu$ and $\sigma^2$. 
+We assume that we do not care about the 
+\begin{align}
+    P\left(\mu|D\right)
+    &=
+    \int d\sigma P\left(\mu,\sigma|D\right)
+    \nonumber\\
+    &=
+    \int d\sigma \frac{P\left(D|\mu,\sigma\right) P\left(\mu,\sigma\right)}{P\left(D\right)}
+    .
+\end{align}
 
 %--------------------------------------------------------------------
 \subsection{Beta distribution}
