@@ -286,7 +286,7 @@ Notice that the mean grows as $N$ increases.
 The chi-square distribution describes the distribution of \eqref{eq:Q_N_def}, that is the sum of the normalized square deviates from the sample mean.
 We now consider the problem of inferring the posterior probability for the mean and variance of normal distribution, given data $D=\{x_1,...,x_N\}$. 
 Notice that in \eqref{eq:Q_N_def} we assumed that the random variables $X_i$ were drawn from $N\left(\mu,\sigma^2\right)$, as we assumed that we knew $\mu$ and $\sigma^2$. 
-We assume that we do not care about the 
+We assume that we do not care about the variance. 
 \begin{align}
     P\left(\mu|D\right)
     &=
@@ -299,9 +299,86 @@ We assume that we do not care about the
 
 %--------------------------------------------------------------------
 \subsection{Beta distribution}
+
+
 %--------------------------------------------------------------------
 \section{Discrete distributions}
 %--------------------------------------------------------------------
 \subsection{Binomial distribution}
+Consider a coin. 
+The binomial distribution describes the number of heads you would obtain after $n$ flips of the coin, assuming the probability of obtaining heads for each flip was $0\leq p\leq 1$.
+Many other processes can be described by a binomial distribution.
+
+The PDF of the binomial distribution is
+\begin{align}
+\label{eq:binomial_pdf}
+    f_X\left(x;p,n\right)
+    =
+    \frac{n!}{x!\left(n-x\right)!} p^x\left(1-p\right)^{n-x}
+    .
+\end{align}
+The mean and variance are
+\begin{align}
+    \mu
+    =&
+    \mathbb{E}\left[x\right]
+    =
+    np 
+    ,\\
+    \sigma^2
+    =&
+    \mathbb{E}\left[\left(x-\mu\right)^2\right]
+    =
+    np\left(1-p\right) 
+    .
+\end{align}
+Notice that the variance grows unbounded as we increase $n$.
+
 %--------------------------------------------------------------------
 \subsection{Poisson distribution}
+The Poisson distribution often occurs in situations where one is counting up the number of occurances of a very rare event.
+
+The PDF of the Poisson distribution is
+\begin{align}
+    \label{eq:poisson_pdf}
+    f_X\left(x;\lambda\right)
+    =
+    \frac{e^{-\lambda}\lambda^x}{x!}
+    .
+\end{align}
+
+We can see why they Poisson PDE describes the number of occurances of a very rare event by taking such a limit of the Binomial PDF.
+We take \eqref{eq:binomial_pdf}, and take the limit $p\to0$ and $n\to\infty$ such that the combination $np=\lambda$ is finite.
+We set $x$ to be a constant value, so that $n\gg x$.
+We then have
+\begin{align}
+    \frac{n!}{x!\left(n-x\right)!} 
+    p^x \left(1-p\right)^{n-x} 
+    =&
+    \frac{n!}{x!\left(n-x\right)!} \left(\frac{\lambda}{n}\right)^x \left(1-\frac{\lambda}{n}\right)^{n-x} 
+    \nonumber\\
+    =&
+    \frac{n!}{x!\left(n-x\right)!} \left(\frac{\lambda/n}{1-\lambda/n}\right)^x \left(1-\frac{\lambda}{n}\right)^{n} 
+    \nonumber\\
+    \to&
+    \frac{1}{x!}\left(\frac{\lambda}{n}\right)^xe^{-\lambda}
+    .
+\end{align}
+If we took the formal limit $n\to\infty$, this would reduce to zero.
+So instead, we do \emph{not} take that exact limit.
+
+The mean and variance of the Poisson distribution are
+\begin{align}
+    \mu
+    =&
+    \mathbb{E}\left[x\right]
+    =
+    \lambda
+    ,\\
+    \sigma^2
+    =&
+    \mathbb{E}\left[\left(x-\mu\right)^2\right]
+    =
+    \lambda
+    .
+\end{align}

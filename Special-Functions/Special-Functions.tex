@@ -1,0 +1,52 @@
+We briefly review the properties of some special functions that we use in the text.
+
+%--------------------------------------------------------------------
+\section{Exponential}
+    The exponential function is $e^x$.
+The Taylor series expansion of the exponential function about $x=0$ is
+\begin{align}
+    e^x
+    =
+    \sum_{n=0}^{\infty} \frac{1}{n!}x^n
+    ,
+\end{align}
+this series has an infinite radius of convergence.
+Another useful formula is
+\begin{align}
+    e^x
+    =
+    \lim_{n\to\infty}\left(1-\frac{x}{n}\right)^n
+    .
+\end{align}
+
+%--------------------------------------------------------------------
+\section{Gamma}
+The gamma function is $\Gamma\left(x\right)$.
+It is a continuous generalization of the factorial function $x!$.
+The most common definitionof $\Gamma$ is
+\begin{align}
+    \label{eq:gamma-function-definition}
+    \Gamma\left(x\right)
+    =
+    \int_0^{\infty}dt \; e^{-t} \; t^{x-1}   
+    .
+\end{align}
+The Gamma function satisfies
+\begin{align}
+    \label{eq:gamma-recurence}
+    \Gamma\left(x\right)
+    =
+    \left(x-1\right)\Gamma\left(x-1\right)
+    .
+\end{align}
+We see that $\Gamma\left(1\right)=1$, and that $\Gamma\left(-n\right)=\infty$ for all $n=0,1,2,3,...$.
+Notice that heuristically this ``had'' to be so, as from \eqref{eq:gamma-recurence}
+\begin{align}
+    \Gamma\left(1\right)
+    =
+    \left(1-1\right)\Gamma\left(0\right)
+    =
+    1
+    .
+\end{align}
+For this to hold, we ``need'' $\Gamma\left(0\right)=\infty$.
