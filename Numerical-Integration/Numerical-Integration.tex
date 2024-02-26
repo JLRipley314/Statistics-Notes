@@ -259,22 +259,8 @@ or functional properties of $p\left(\btheta\right)$.
 Here we take the perspective of numerical integration theory, so we think of 
 $p\left(\btheta\right) = f\left(\btheta\right)/g\left(\btheta\right)$ 
 as a weighting factor for our integration of \eqref{eq:integral-f-monte-carlo}. 
-
-First we define a few concepts about Markov Chains.
-We will borrow some of the concepts from the discussion on stochastic processes
-in Chptr.~\ref{chap:time-series-analysis}.
-A \textbf{Markov chain} is a sequence of random vectors
-(a stochastic process) $\left\{\btheta_1,\btheta_2,...\right\}$, 
-where the probability distribution of $\btheta_{n+1}$ is dependent solely on $\btheta_n$.
-That is 
-$P\left(\btheta_{n+1}|\left\{\btheta_i\right\}\right) 
- =
- P\left(\btheta_{n+1}|\btheta_n\right)$. 
-We call $P\left(\btheta_{n+1}|\btheta_n\right)$ the \textbf{transition probability}. 
-The probability distribution for $\btheta_1$, $P\left(\btheta_1\right)$, is called
-the \textbf{initial distribution}.
-We will only consider Markov chains with \textbf{stationary transition probabilities},
-where the transition probabilities do not depend on $n$.
+We refer to Chapter \ref{chap:markov-chains} for a more a discussion of Markov chains.
+We will only consider Markov chains with \textbf{stationary transition probabilities}, where the transition probabilities $P\left(\btheta_{n+1}|\btheta_n\right)$ do not depend on $n$.
 
 Operationally, MCMC integration of \eqref{eq:integral-f-monte-carlo}
 goes as follows.

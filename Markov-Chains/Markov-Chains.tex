@@ -1,0 +1,214 @@
+
+First we define a few concepts about Markov chains.
+There is a large literature on Markov chains. 
+Here we discuss only a few aspects of the theory. 
+In particular we will mostly only discussion discrete Markov chains; for the most part (that is, the set of states $i$ is countable).
+For continuous Markov chains, usually you can get away with simply replacing sums with integrals, etc.
+
+We will borrow some of the concepts from the discussion on stochastic processes in Chptr.~\ref{chap:time-series-analysis}.
+A \textbf{Markov chain} is a sequence of random vectors (a stochastic process) $\left\{\btheta_1,\btheta_2,...\right\}$, where the probability distribution of $\btheta_{k+1}$ is dependent solely on $\btheta_n$.
+That is 
+\begin{align}
+    P\left(\btheta_{k+1}=\bj|\btheta_{k}=\bi, \btheta_{k-1} = \bi_{k-1}, \cdots \btheta_{0} = \bi_0\right) 
+     =
+     P\left(\btheta_{k+1}=\bj|\btheta_n=\bi\right)
+     .
+\end{align}
+Here the $\bj,\bi_m$ label the states of the Markov chain--notice that the subscript of $\btheta$ denotes what step we're on in the Markov chain. 
+We call $P\left(\btheta_{k+1}=\bj|\btheta_n=\bi\right)$ the \textbf{transition probability}. 
+The probability distribution for $\btheta_0$, $P\left(\btheta_0\right)$, is called the \textbf{initial distribution}.
+
+Notice by the conservation of probability, we have
+\begin{align}
+    \label{eq:conservation-of-probability}
+    \sum_{\bj\in S}P\left(\btheta_{k+1}=\bj|\btheta_n=\bi\right)
+    =
+    1
+    ,
+\end{align}
+where the sum over all states of the Markov chain.
+In other words, witha Markov chain, in the next step you must go \emph{somewhere} with probability one--probability must be conserved.
+
+
+If the transition probabilities are \textbf{stationary}, the transition probabilities do not depend on the step $n$ in the chain.
+In that case we sometimes denote the transition probabilities with the simpler notation 
+\begin{align}
+     P\left(\btheta_{k+1}=\bj|\btheta_n=\bi\right)
+     \to
+     P\left(\bj|\bi\right)
+    .
+\end{align}
+We will only consider stationary transition probabilities.
+%=================================================================================
+\section{Representations of Markov chains for scalar states \label{sec:representations-markov-chains}}
+
+When the states are scalars, there are a number of commonly used representations of Markov chains. 
+As we are only dealing with scalar variables in this section, we drop the boldfont on $\btheta$ and $\bi$.
+
+Some references set $P\left(j|i\right) = p_{ij}$, others set $P\left(j|i\right) = p_{ji}$.
+While I find the latter notation more natural, it seems like the most common notation is the first one (e.g. \cite{wasserman2010statistics,pishro2014introduction}), so we pick that one
+\begin{align}
+    \label{eq:notational-shorthand-makov-step}
+    P\left(j|i\right)
+    \equiv
+    p_{ij}
+    .
+\end{align}
+
+Sometimes the transition probabilities are represented in terms of a \textbf{state transition matrix} $P$, where the rows/columns are given by
+\begin{align}
+    P_{ij}
+    =
+    p_{ij}
+    .
+\end{align}
+By \eqref{eq:conservation-of-probability}, and \eqref{eq:notational-shorthand-makov-step}, we see that the elements of each row must sum to one
+\begin{align}
+    \label{eq:rows-sum-to-one}
+    \sum_{j\in S} p_{ij}
+    =
+    1
+    .
+\end{align}
+With Eq.~\eqref{eq:notational-shorthand-makov-step}, the PDF of a chain $\left\{\theta_0=i_0, \theta_1=i_i, ... , \theta_k=i_k\right\}$ is
+\begin{align}
+    P\left(\left\{\theta_0=i_0, \theta_1=i_1, ... , \theta_n=i_n\right\}\right)
+    =
+    p_0 p_{0,1} p_{1,2} \cdots p_{k-1,k}
+    ,
+\end{align}
+
+Another common way to describe a Markov chain is through a \textbf{transition state diagram} (I find this to be especially useful for solving problems that involve Markov chains).
+One draws an arrow between points in the state space that have nonzero transition probabilities between them, and then labels each arrow with the transition probability.
+
+Consider the following diagram
+
+\textbf{insert diagram here}
+
+%=================================================================================
+\section{Transition probabilities for scalar states\label{sec:transition-probabilities}}
+
+We next turn to a more vectorial representation of the evolution of probability distribution for scalar random variables.
+We consider an initial probability distribution of states, which we represent as a row vector 
+\begin{align}
+    \bpi_0
+    =
+    \begin{pmatrix}
+        P\left(\theta_0=1\right),\cdots,P\left(\theta_0=n\right)
+        .
+    \end{pmatrix}
+    .
+\end{align}
+The probability distribution of of states for the next step in the Markov chain is 
+\begin{align}
+    P\left(\theta_1=j\right) 
+    =
+    \sum_{i\in S} P\left(j|i\right) P\left(\theta_0=i\right)
+    .
+\end{align}
+In vectorial notation, we have
+\begin{align}
+    \left(\bpi_1\right)_i = \left(\bpi_0\right)_j P_{ji}
+    .
+\end{align}
+Iterating, we see that the probability distribution at the $k^{th}$ step is
+\begin{align}
+    \bpi_k
+    =
+    \bpi_0 P^k
+    .
+\end{align}
+
+Finally, we note that from the law of total probability, we have
+\begin{align}
+    P\left(\theta_{m+n}=j|\theta_0=i\right)
+    =
+    \sum_{k\in S} 
+        P\left(\theta_{m}=j|\theta_n=k\right)
+        P\left(\theta_{n}=k|\theta_0=i\right)
+    .
+\end{align}
+We can rewrite these as follows
+\begin{align}
+    \label{eq:Chapman-Kolmogorov-eqns}
+    p^{(m+n)}_{ij} 
+    =
+    \sum_{k\in S} p^{(n)}_{ik}p^{(m)}_{kj}
+    .
+\end{align}
+These are called the \textbf{Chapmon-Kolmogorov equations}.
+Here we have used the notation 
+\begin{align}
+    p^{(n)}_{ij}
+    \equiv
+    P\left(\theta_{n}=j|\theta_0=i\right) 
+    =
+    p_{ik_1}p_{k_2k_3}\cdots p_{k_nj}
+    .
+\end{align}
+
+%=================================================================================
+\section{Absorbing states  \label{sec:absorbing-states}}
+
+For a given state $\bi$, if there is an integer $n$ such that 
+\begin{align}
+    P\left(\bX_n = \bi | \bX_0 = \bi\right) = 1
+    ,
+\end{align}
+we say the state $\bi$ is \textbf{recurrent}.
+If instead for all $n$ we have 
+\begin{align}
+    P\left(\bX_n = \bi | \bX_0 = \bi\right) < 1
+    ,
+\end{align}
+we then say that the state is \textbf{transient}.
+We say a state $\bi$ is \textbf{absorbing} if
+\begin{align}
+    \label{eq:absorbing_condition}
+    P\left(\bX_1 = \bi | \bX_0 = \bi\right) = 1
+    .
+\end{align}
+The condition \eqref{eq:absorbing_condition} implies that once you are at state $\bi$, we cannot move to any other state.
+
+%=================================================================================
+\subsection{Calculating absorption probabilities}
+Let $\bj_a$ is an absorbing state. 
+The probability that a state $\bi$ will eventually end up at $\bj_a$ is called the \textbf{absorption probability}.
+We denote the absorption probability by
+\begin{align}
+    a_{\bi,\bj_a}
+    \equiv
+    P\left(\mathrm{absorption\;by\;}\bj_a|\bX_0=\bi\right)
+    .
+\end{align}
+To compute $a_{\bi, \bj_a}$, we first set $a_{\bi, \bk_a}=0$ for any other absorbing states $\bk_a\neq\bj_a$.
+This is because for any other absorbing state, clearly we must have
+\begin{align}
+    a_{\bi,\bk_a}
+    = 
+    P\left(\mathrm{absorption\;by\;}\bk_a|\bX_0=\bj_a\right)
+    =
+    0
+    ,
+\end{align}
+since $P\left(\mathrm{absorption\;by\;}\bj_a|\bX_0=\bj_a\right)=1$ for all absorbing states.
+To compute the $a_{\bi,bj_a}$ for all $\bi$ that are not absorbing, we use the law of total probability to derive a set of linear equations
+\begin{align}
+    \label{eq:linear-eqns-absorbtion-probabilities}
+    a_{\bi,\bj_a}
+    =&
+    P\left(\mathrm{absorption\;by\;}\bi|\bX_0=\bj_a\right)
+    \nonumber\\
+    =&
+    \sum_{\bk\in S} P\left(\mathrm{absorption\;by\;}\bj_a|\bX_1=\bk\right)P\left(\bX_1=\bk|\bX_0=\bi\right)
+    \nonumber\\
+    =&
+    \sum_{\bk\in S} a_{\bk,\bj_a} P\left(\bk|\bi\right)  
+    .
+\end{align}
+On the last line we made use of the fact that since the transition probabilities are stationary, $a_{\bi,\bj_a}$ does not depends only on $\bi$ and $\bj_a$, that is it does not depend on what step of the chain we are on.
+With $a_{\bk_a,\bj_a}=0$ for all $\bk_a\neq\bj_a$, \eqref{eq:linear-eqns-absorbtion-probabilities} defines a set of linear equations that we can solve for the remaining absorption probabilities $a_{\bk,\bj_a}$.
+
+%=================================================================================
+\subsection{Calculating mean hitting times}
+
