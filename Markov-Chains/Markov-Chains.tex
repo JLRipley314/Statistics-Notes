@@ -42,19 +42,32 @@ We will only consider stationary transition probabilities.
 %=================================================================================
 \section{Representations of Markov chains for scalar states \label{sec:representations-markov-chains}}
 
-When the states are scalars, there are a number of commonly used representations of Markov chains. 
-As we are only dealing with scalar variables in this section, we drop the boldfont on $\btheta$ and $\bi$.
-
-Some references set $P\left(j|i\right) = p_{ij}$, others set $P\left(j|i\right) = p_{ji}$.
+Some references set $P\left(\bj|\bi\right) = p_{\bi\bj}$, others set $P\left(\bj|\bi\right) = p_{\bj\bi}$.
 While I find the latter notation more natural, it seems like the most common notation is the first one (e.g. \cite{wasserman2010statistics,pishro2014introduction}), so we pick that one
 \begin{align}
     \label{eq:notational-shorthand-makov-step}
-    P\left(j|i\right)
+    P\left(\bj|\bi\right)
     \equiv
-    p_{ij}
+    p_{\bi\bj}
     .
 \end{align}
+By \eqref{eq:conservation-of-probability}, and \eqref{eq:notational-shorthand-makov-step}, we see that the elements of each row must sum to one
+\begin{align}
+    \label{eq:rows-sum-to-one}
+    \sum_{\bj\in S} p_{\bi\bj}
+    =
+    1
+    .
+\end{align}
+With Eq.~\eqref{eq:notational-shorthand-makov-step}, the PDF of a chain $\left\{\btheta_0=\bi_0, \btheta_1=\bi_i, ... , \btheta_k=\bi_k\right\}$ is
+\begin{align}
+    P\left(\left\{\btheta_0=\bi_0, \btheta_1=\bi_1, ... , \btheta_n=\bi_n\right\}\right)
+    =
+    p_{\bZero} p_{\bZero,\bOne} p_{\bOne,\bTwo} \cdots p_{\bk-\bOne,\bk}
+    ,
+\end{align}
 
+When the states are scalars, we can set $p_{\bi \bj} \to p_{ij}$ to represent the components of a matrix. 
 Sometimes the transition probabilities are represented in terms of a \textbf{state transition matrix} $P$, where the rows/columns are given by
 \begin{align}
     P_{ij}
@@ -62,22 +75,6 @@ Sometimes the transition probabilities are represented in terms of a \textbf{sta
     p_{ij}
     .
 \end{align}
-By \eqref{eq:conservation-of-probability}, and \eqref{eq:notational-shorthand-makov-step}, we see that the elements of each row must sum to one
-\begin{align}
-    \label{eq:rows-sum-to-one}
-    \sum_{j\in S} p_{ij}
-    =
-    1
-    .
-\end{align}
-With Eq.~\eqref{eq:notational-shorthand-makov-step}, the PDF of a chain $\left\{\theta_0=i_0, \theta_1=i_i, ... , \theta_k=i_k\right\}$ is
-\begin{align}
-    P\left(\left\{\theta_0=i_0, \theta_1=i_1, ... , \theta_n=i_n\right\}\right)
-    =
-    p_0 p_{0,1} p_{1,2} \cdots p_{k-1,k}
-    ,
-\end{align}
-
 Another common way to describe a Markov chain is through a \textbf{transition state diagram} (I find this to be especially useful for solving problems that involve Markov chains).
 One draws an arrow between points in the state space that have nonzero transition probabilities between them, and then labels each arrow with the transition probability.
 
@@ -194,7 +191,7 @@ This is because for any other absorbing state, clearly we must have
 since $P\left(\mathrm{absorption\;by\;}\bj_a|\bX_0=\bj_a\right)=1$ for all absorbing states.
 To compute the $a_{\bi,bj_a}$ for all $\bi$ that are not absorbing, we use the law of total probability to derive a set of linear equations
 \begin{align}
-    \label{eq:linear-eqns-absorbtion-probabilities}
+    \label{eq:linear-eqns-absorbtion-probabilities-derivation}
     a_{\bi,\bj_a}
     =&
     P\left(\mathrm{absorption\;by\;}\bi|\bX_0=\bj_a\right)
@@ -206,9 +203,57 @@ To compute the $a_{\bi,bj_a}$ for all $\bi$ that are not absorbing, we use the l
     \sum_{\bk\in S} a_{\bk,\bj_a} P\left(\bk|\bi\right)  
     .
 \end{align}
+That is we have
+\begin{align}
+    \label{eq:linear-eqns-absorbtion-probabilities}
+    a_{\bi,\bj_a}
+    =
+    \sum_{\bk\in S} p_{\bi\bk}a_{\bk,\bj_a}   
+    .
+\end{align}
 On the last line we made use of the fact that since the transition probabilities are stationary, $a_{\bi,\bj_a}$ does not depends only on $\bi$ and $\bj_a$, that is it does not depend on what step of the chain we are on.
 With $a_{\bk_a,\bj_a}=0$ for all $\bk_a\neq\bj_a$, \eqref{eq:linear-eqns-absorbtion-probabilities} defines a set of linear equations that we can solve for the remaining absorption probabilities $a_{\bk,\bj_a}$.
 
 %=================================================================================
 \subsection{Calculating mean hitting times}
 
+In addition to determine the probability of reaching a given absorbing state $\bj_a$, another question of practical importance is determining the expectation of the number of steps it will take to reach \emph{any} absorbing state.
+We denote the mean steps by
+\begin{align}
+    \mathbb{E}\left[\mathrm{steps}\;T\;\mathrm{until\;absorption}|\bi\right]
+    =
+    \mu_{\bi}
+    .
+\end{align}
+Clearly $\mu_{\bj_a}=0$ for all absorbing states $\bj_a$.
+To compute $\mu_{\bi}$ for non-absorbing states $\bi$, we take one step, and use the law of total probability (iterated expectation)
+\begin{align}
+    \label{eq:linear-eqns-absorbtion-steps-derivation}
+    \mu_{\bi}
+    =&
+    \mathbb{E}\left[\mathrm{steps}\;T\;\mathrm{until\;absorption}|\btheta_0=\bi\right]
+    \nonumber\\
+    =&
+    1
+    +
+    \sum_{\bj} \mathbb{E}\left[\mathrm{steps}\;T\;\mathrm{until\;absorption}|\btheta_1=\bj\right]
+                P\left(\btheta_1=\bj|\btheta_0=\bi\right)
+    \nonumber\\
+    =&
+    1
+    +
+    \sum_{\bj} \mu_{\bj}P\left(\bj|\bi\right)
+    .
+\end{align}
+That is we have
+\begin{align}
+    \label{eq:linear-eqns-absorbtion-steps}
+    \mu_{\bi}
+    =
+    1
+    +
+    \sum_{\bj} p_{\bi\bj}\mu_{\bj}
+    .
+\end{align}
+Equation~\eqref{eq:linear-eqns-absorbtion-steps} defines a set of linear equations for the expectation of the absorption time.
+Note that this is the expectation to be absorbed by \emph{any} state, as opposed to \eqref{eq:linear-eqns-absorbtion-probabilities}, which defines the probability to be absorbed by a \emph{specific} state $\bj_a$. 
