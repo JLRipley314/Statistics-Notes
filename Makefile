@@ -1,5 +1,4 @@
 sn=Statistics-Notes
-
 all:
 	latex    $(sn).tex
 	bibtex   $(sn)

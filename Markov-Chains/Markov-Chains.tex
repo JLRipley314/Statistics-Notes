@@ -2,8 +2,7 @@
 First we define a few concepts about Markov chains.
 There is a large literature on Markov chains. 
 Here we discuss only a few aspects of the theory. 
-In particular we will mostly only discussion discrete Markov chains; for the most part (that is, the set of states $i$ is countable).
-For continuous Markov chains, usually you can get away with simply replacing sums with integrals, etc.
+In particular we will mostly only discuss discrete Markov chains--that is Markov chains where that make discrete jumps in time.
 
 We will borrow some of the concepts from the discussion on stochastic processes in Chptr.~\ref{chap:time-series-analysis}.
 A \textbf{Markov chain} is a sequence of random vectors (a stochastic process) $\left\{\btheta_1,\btheta_2,...\right\}$, where the probability distribution of $\btheta_{k+1}$ is dependent solely on $\btheta_n$.
@@ -77,10 +76,6 @@ Sometimes the transition probabilities are represented in terms of a \textbf{sta
 \end{align}
 Another common way to describe a Markov chain is through a \textbf{transition state diagram} (I find this to be especially useful for solving problems that involve Markov chains).
 One draws an arrow between points in the state space that have nonzero transition probabilities between them, and then labels each arrow with the transition probability.
-
-Consider the following diagram
-
-\textbf{insert diagram here}
 
 %=================================================================================
 \section{Transition probabilities for scalar states\label{sec:transition-probabilities}}
