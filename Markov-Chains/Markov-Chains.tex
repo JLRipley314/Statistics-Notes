@@ -180,7 +180,7 @@ This is because for any other absorbing state, clearly we must have
     = 
     P\left(\mathrm{absorption\;by\;}\bk_a|\bX_0=\bj_a\right)
     =
-    0
+    \delta_{\bk_a, \bj_a}
     ,
 \end{align}
 since $P\left(\mathrm{absorption\;by\;}\bj_a|\bX_0=\bj_a\right)=1$ for all absorbing states.
@@ -198,7 +198,7 @@ To compute the $a_{\bi,bj_a}$ for all $\bi$ that are not absorbing, we use the l
     \sum_{\bk\in S} a_{\bk,\bj_a} P\left(\bk|\bi\right)  
     .
 \end{align}
-That is we have
+That is we have (for all non-absorbing states)
 \begin{align}
     \label{eq:linear-eqns-absorbtion-probabilities}
     a_{\bi,\bj_a}
@@ -207,10 +207,10 @@ That is we have
     .
 \end{align}
 On the last line we made use of the fact that since the transition probabilities are stationary, $a_{\bi,\bj_a}$ does not depends only on $\bi$ and $\bj_a$, that is it does not depend on what step of the chain we are on.
-With $a_{\bk_a,\bj_a}=0$ for all $\bk_a\neq\bj_a$, \eqref{eq:linear-eqns-absorbtion-probabilities} defines a set of linear equations that we can solve for the remaining absorption probabilities $a_{\bk,\bj_a}$.
+With $a_{\bk_a,\bj_a}=\delta_{\bk_a,\bj_a}$ for the absorbing states, \eqref{eq:linear-eqns-absorbtion-probabilities} defines a set of linear equations that we can solve for the absorption probabilities to $\bj_a$, $a_{\bk,\bj_a}$, for the non-absorbing states.
 
 %=================================================================================
-\subsection{Calculating mean hitting times}
+\subsection{Calculating mean absorption times}
 
 In addition to determine the probability of reaching a given absorbing state $\bj_a$, another question of practical importance is determining the expectation of the number of steps it will take to reach \emph{any} absorbing state.
 We denote the mean steps by
@@ -240,7 +240,7 @@ To compute $\mu_{\bi}$ for non-absorbing states $\bi$, we take one step, and use
     \sum_{\bj} \mu_{\bj}P\left(\bj|\bi\right)
     .
 \end{align}
-That is we have
+That is we have (for all non-absorbing states)
 \begin{align}
     \label{eq:linear-eqns-absorbtion-steps}
     \mu_{\bi}
