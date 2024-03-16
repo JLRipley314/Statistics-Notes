@@ -1,0 +1,111 @@
+
+I'll assume familiarity with Chptr.~\ref{chap:time-series-analysis} and Chptr.~\ref{chap:markov-chains}.
+A \textbf{martingale} is a sequence of random vectors (a stochastic process) $\left\{\btheta_1,\btheta_2,...\right\}$, where the expectation of step $k+1$ is equal to the value of the chain at step $k$.
+That is
+\begin{align}
+    \mathbb{E}\left[\btheta_{k+1}|\btheta_{k}=\bi,\btheta_{k-1}=\bi_{k-1},\cdots,\btheta_0=\bi_0\right]
+    =
+    \bi
+    .
+\end{align}
+This looks superficially similar to the definition of a Markov process, but its not.
+A Markov process does not need to be a martingale process, and a martingale process does not need to be a Markov process.
+As with Chptr.~\ref{chap:markov-chains}, we only consider discrete martingales--that is martingales where there are discrete jumps in time between states.
+
+%=================================================================================
+\section{Symmetric random walk\label{sec:symmetric-random-walk}}
+
+A widely studied martingale is the \textbf{symmetric random walk}.
+A symmetric random walk is a stochastic process, where at each step we have the random variable
+\begin{align}
+    \label{eq:def-random-walk-vector-sum}
+    \bS_k
+    \equiv
+    \sum_{i=1}^k\btheta_i
+    .
+\end{align}
+The $\btheta_i$ are identically distributed random variables $\{\btheta_i\}$ in an $n$-dimensional Euclidean space.
+These variables have unit length, and their PDF to point in angular direction $\bphi=\left(\phi_0,...,\phi_{n-1}\right)$ is uniform.
+The expectation for step $\btheta_k$ is then
+\begin{align}
+    \mathbb{E}\left[\btheta_{i}\right]
+    =
+    \int d\Omega_{n-1} \bu\left(\bphi\right)
+    =
+    0
+    ,
+\end{align}
+where $\bu\left(\bphi\right)$ is a unit vector pointing in the direction $\bphi$.
+We additionally have
+\begin{align}
+    \mathbb{E}\left[\left|\btheta_i\right|^2\right]
+    =
+    \int d\Omega_{n-1} \left|\bu\left(\bphi\right)\right|^2
+    =
+    \int d\Omega_{n-1} 
+    =
+    1
+    .
+\end{align}
+Finally, as the vectors are independent, we have
+\begin{align}
+    \mathbb{E}\left[\btheta_i\cdot\btheta_j\right]
+    =
+    \mathbb{E}\left[\btheta_i\right]
+    \cdot
+    \mathbb{E}\left[\btheta_j\right]
+    =
+    \bZero
+    .
+\end{align}
+
+These facts imply that
+\begin{align}
+    \mathbb{E}\left[\bS_k\right]
+    =&
+    \bZero
+    ,\\
+    \mathbb{E}\left[\left|\bS_k\right|^2\right]
+    =&
+    k
+    .
+\end{align}
+Notice that by the convexity of the expectation, we have $\mathbb{E}\left[\left|\bS_k\right|\right]\leq \sqrt{k}$.
+
+The sequence $\{\bS_k\}$ defines a martingale, as
+\begin{align}
+    \mathbb{E}\left[\bS_{k+1}|\bS_{k}=\bs,\bS_{k-1}=\bs_{k-1},...,\bS_1=\bs_1\right]
+    =&
+    \int d\Omega_{n-1} \left(\bs + \bu\left(\bphi\right)\right)
+    \nonumber\\
+    =&
+    \bs
+    .
+\end{align}
+The sequence $\{\left|\bS_{k}\right|^2 - k\}$ also defines a martingale.
+We define the random variable $\bY_k \equiv \bS_k - k$ to reduce clutter.
+We define $\by \equiv \bs - k$, and calculate:
+\begin{align}
+    \mathbb{E}\left[\bY_{k+1}|\bY_{k}=\by,\bY_{k-1}=\by_{k-1},...,\bY_1=\by_1\right]
+    =&
+    \int d\Omega_{n-1} \left|\bs + \bu\right|^2
+    -
+    \left(k+1\right)
+    \nonumber\\
+    =&
+    \left|\bs\right|^2
+    +
+    1
+    -
+    \left(k+1\right)
+    \nonumber\\
+    =&
+    \left|\bs\right|^2
+    -
+    k
+    \nonumber\\
+    =&
+    \by
+    .
+\end{align}
+We used that $\mathbb{E}\left[const\right]=const$.

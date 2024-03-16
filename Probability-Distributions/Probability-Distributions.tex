@@ -304,10 +304,29 @@ We assume that we do not care about the variance.
 %--------------------------------------------------------------------
 \section{Discrete distributions}
 %--------------------------------------------------------------------
+\subsection{Bernoulli distribution}
+We assign the value $X=1$ with probability $p$ and $X=0$ with probability $1-p$.
+The distribution of this probability space is the Bernoulli distribution.
+The mean and covariance are
+\begin{align}
+    \mu = & \mathbb{E}\left[x\right] = p
+    ,\\
+    \sigma^2 = & \mathbb{E}\left[\left(x-\mu\right)^2\right] = p\left(1-p\right) 
+    .
+\end{align}
+One draw from a Bernoulli distribution is called a \textbf{Bernoulli trial}. 
+
+%--------------------------------------------------------------------
 \subsection{Binomial distribution}
-Consider a coin. 
-The binomial distribution describes the number of heads you would obtain after $n$ flips of the coin, assuming the probability of obtaining heads for each flip was $0\leq p\leq 1$.
-Many other processes can be described by a binomial distribution.
+A \textbf{Bernoulli process} is a sequence of independent, identically distributed Bernoulli trials $\{X_i\}$.
+is the Binomial distribution describes the distribution of the following variable. 
+\begin{align}
+    X_n
+    \equiv
+    \sum_{i=1}^n X_i
+    .
+\end{align}
+Notice that this is \emph{not} the mean of the Bernoulli trials.
 
 The PDF of the binomial distribution is
 \begin{align}
@@ -332,7 +351,7 @@ The mean and variance are
     np\left(1-p\right) 
     .
 \end{align}
-Notice that the variance grows unbounded as we increase $n$.
+Notice that the mean and variance grow unbounded as we increase $n$.
 
 %--------------------------------------------------------------------
 \subsection{Poisson distribution}
@@ -382,3 +401,61 @@ The mean and variance of the Poisson distribution are
     \lambda
     .
 \end{align}
+
+%--------------------------------------------------------------------
+\subsection{Geometric distribution}
+The PDF of the geometric distribution is
+\begin{align}
+    f_X\left(x;p\right)
+    =
+    \left(1-p\right)^{x-1}p
+    .
+\end{align}
+It holds for $x=\{1,2,...\}$.
+The geometric distribution can be ``derived'' from the following. 
+Say you have a Bernoulli process, and you want to know the probability of measuring the first value of $X=1$ at step $n$.
+The probability of measuring $X=1$ after a sequence of $n-1$ $X=0$ is
+\begin{align}
+    P\left(X_n=1,X_{n-1}=0,....,X_{1}\right) = \left(1-p\right)^{n-1} p
+    .
+\end{align}
+
+Deriving the mean and variance of the geometric distribution requires some tricks.
+Here we show a method that is fairly generic, and that can be used to derive the moments of many other distributions, e.g. the Gaussian distribution.
+We write the mean as
+\begin{align}
+    \mathbb{E}\left[X\right]
+    &=
+    \sum_{x=1}^{\infty} x \left(1-p\right)^{x-1}p
+    \nonumber\\
+    &=
+    \frac{p}{1-p}\sum_{x=1}^{\infty} x \left(1-p\right)^x
+    \nonumber\\
+    &=
+    \frac{p}{1-p}\frac{1}{\ln\left(1-p\right)} \frac{d}{d\alpha}\sum_{x=1}^{\infty}\left(1-p\right)^{\alpha x}\Big|_{\alpha=1}
+    \nonumber\\
+    &=
+    \frac{p}{1-p}\frac{1}{\ln\left(1-p\right)} \frac{d}{d\alpha}\frac{1}{1-\left(1-p\right)^{\alpha}}\Big|_{\alpha=1}
+    \nonumber\\
+    &=
+    \frac{1}{p}
+    .
+\end{align}
+We used the fact that $d q^{\alpha}/d\alpha = \ln q \times q^{\alpha}$.
+The variance can be derived using a similar sort of argument.
+We have
+\begin{align}
+    \mu
+    &=
+    \mathbb{E}\left[x\right]
+    =
+    \frac{1}{p}
+    ,\\
+    \sigma^2
+    &=
+    \mathbb{E}\left[\left(x-\mu\right)^2\right]
+    =
+    \frac{1-p}{p^2}
+    .
+\end{align}
+Notice that both the mean and variance grow unbounded as $p\to0$.

@@ -201,7 +201,26 @@ From Bayes theorem \eqref{eq:Bayes-theorem-2}, we then have
 That is, to find the probability distribution for some function of the distribution parameters, we only need to find the probability distribution for the prior under that change in coordinates. 
 
 
-%--------------------------------------------------------------------
+%===============================================================================
+\section{Conditional probability}
+
+The conditional probability is defined by
+\begin{align}
+    P\left(\btheta,\bpsi\right)
+    \equiv
+    P\left(\btheta|\bpsi\right)
+    P\left(\bpsi\right)
+    .
+\end{align}
+For PDFs, a useful result is that
+\begin{align}
+    f_{\bTheta}\left(\btheta\right)
+    =
+    \int d^n\psi f_{\bTheta|\bPsi=\bpsi}\left(\bTheta\right)f_{\bPsi}\left(\bpsi\right)
+    .
+\end{align}
+
+%===============================================================================
 \section{Expectation and covariance}
 
 We review a few basic definitions from probability theory, as they come
@@ -265,6 +284,28 @@ The \textbf{bias} of $\bTheta$ then is
     .
 \end{align}
 If $\bb=0$, then $\bTheta$ is an \textbf{unbiased estimator} for $\btheta$.
+
+The \textbf{law of total expectation} states that
+\begin{align}
+    \label{eq:law-total-expectation}
+    \mathbb{E}\left[\bTheta\right]
+    &=
+    \mathbb{E}\left[\mathbb{E}\left[\bTheta|\bPsi\right]\right]
+    .
+\end{align}
+This follows from the definition of the expecation
+\begin{align}
+    \mathbb{E}\left[\mathbb{E}\left[\bTheta\right]\right]
+    &=
+    \int d^n\psi\mathbb{E}\left[\bTheta|\bPsi=\bpsi\right] f_{\bPsi}\left(\bpsi\right)
+    \nonumber\\
+    &=
+    \int d^kx\int d^n\psi \bTheta\left(\bx\right) f_{\bX|\bPsi=\bpsi}\left(\bx\right) f_{\bPsi}\left(\bpsi\right)
+    \nonumber\\
+    &=
+    \int d^kx\bTheta\left(\bx\right) f_{\bX}\left(\bx\right) 
+    .
+\end{align}
 
 %===============================================================================
 \section{Characteristic/moment generating function}
@@ -500,7 +541,7 @@ That is, the Fisher information is the variance of the score.
 Let $\hat{\btheta}$ be the maximum likelihood estimator for $\btheta$.
 Under appropriate regularity conditions,
 the likelihood $\mathcal{L}\left(\btheta\right)$ 
-tends towards a multivariate number with mean $\hat{\btheta}$ and 
+tends towards a multivariate Gaussian function with mean $\hat{\btheta}$ and 
 covariance matrix given by the inverse Fisher information divided by the number of measurements of the data $n$, 
 $\tilde{\bF}^{-1}=\bF^{-1}/n$. 
 In equations, we have
@@ -534,9 +575,8 @@ $\btheta_0$
     \cdots
     .
 \end{align}
-Setting $\btheta=\hat{\btheta}$, relabeling $\btheta_0\to\btheta$
-(and dropping the $\btheta=\btheta_0$, to reduce clutter), and rearranging gives us 
-(we used that at the maximum likelihood estimator, $\hat{\btheta}$, the derivative of the likelihood is zero)
+Setting $\btheta=\hat{\btheta}$, relabeling $\btheta_0\to\btheta$, 
+dropping the ``$\big|_{\btheta=\btheta_0}$'' to reduce clutter, and rearranging gives us 
 \begin{align}
     \sqrt{n}\left(\hat{\theta}^i - \theta^i\right)
     =&
@@ -545,6 +585,7 @@ Setting $\btheta=\hat{\btheta}$, relabeling $\btheta_0\to\btheta$
     \left(\frac{1}{\sqrt{n}}\nabla_{\theta^j}\ln\mathcal{L}\left(\btheta\right)\right)
     .
 \end{align}
+We used that at the maximum likelihood estimator, $\hat{\btheta}$, the derivative of the likelihood is zero.
 As $n\to\infty$, we see that
 \begin{align}
     \lim_{n\to\infty}\nabla_{\theta^j}\ln\mathcal{L}\left(\btheta\right)
@@ -555,7 +596,7 @@ As $n\to\infty$, we see that
     N_k\left({\bm 0},\bF\right)
     .
 \end{align}
-This follows from the central limit theorem: the mean of the score is zero, 
+The above result followed from the central limit theorem: the mean of the score is zero, 
 and the variance of the score is the Fisher information.
 By the law of large numbers we can average
 \begin{align}
@@ -586,7 +627,7 @@ Or in other words
     .
 \end{align}
 We have not been careful by what we mean by ``$\to$'' and ``$\sim$'' here--in fact there
-are various notions of convergence that go into the full proof
+are different notions of convergence that go into the full proof
 (see for example \cite{wasserman2010statistics}).
 
 We can understand the BvM theorem heuristically as follows.
