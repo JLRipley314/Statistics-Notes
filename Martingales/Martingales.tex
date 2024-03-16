@@ -1,16 +1,76 @@
+Parts of this chapter are inspired by sections in \cite{zhou2008practical,feller1968introduction}.
 
 I'll assume familiarity with Chptr.~\ref{chap:time-series-analysis} and Chptr.~\ref{chap:markov-chains}.
 A \textbf{martingale} is a sequence of random vectors (a stochastic process) $\left\{\btheta_1,\btheta_2,...\right\}$, where the expectation of step $k+1$ is equal to the value of the chain at step $k$.
 That is
 \begin{align}
+    \label{eq:martingale-property}
     \mathbb{E}\left[\btheta_{k+1}|\btheta_{k}=\bi,\btheta_{k-1}=\bi_{k-1},\cdots,\btheta_0=\bi_0\right]
     =
     \bi
     .
 \end{align}
-This looks superficially similar to the definition of a Markov process, but its not.
+
+Notice that the martingale property \eqref{eq:martingale-property} implies that the (unconditioned) expectations at every step are equal to one another.
+We assume a probabilistic distribution for the initial data $\btheta_0$.
+\begin{align}
+    \mathbb{E}\left[\btheta_0\right]
+    =
+    \sum_{\bi\in S} \bi P\left(\bi\right)
+    .
+\end{align}
+By the law of total expectation \eqref{eq:law-total-expectation} and the martingale property \eqref{eq:martingale-property}, we then have
+\begin{align}
+    \mathbb{E}\left[\btheta_k\right]
+    &=
+    \sum_{\bi\in S} \mathbb{E}\left[\btheta_k|\btheta_{k-1}=\bi\right]P\left(\bi\right)
+    \nonumber\\
+    &=
+    \sum_{\bi\in S} \bi P\left(\bi\right)
+    \nonumber\\
+    &=
+    \mathbb{E}\left[\btheta_0\right]
+    .
+\end{align}
+To reiterate, the expectation of every step of a martingale is the same 
+\begin{align}
+    \label{eq:martingale-unchanging-expectation}
+    \mathbb{E}\left[\btheta_k\right]
+    =
+    \mathbb{E}\left[\btheta_0\right]
+    .
+\end{align}
+The prorty \eqref{eq:martingale-unchanging-expectation} of martingales reflects the notion of a ``fair game''.
+
+We can interpret each step of the martingale as playing one round of a game, with the different states reflecting your earnings.
+Your expected future earnings at each round are equal to your initial earnings--thus ``on average'' you do not earn or lose any money. 
+This property holds for the namesake of martingale: the martingale betting strategy.
+In this strategy (which arose in 18$^{th}$ century France), you bet double or nothing for every round of some win/lose game until you win, thus recovering all the previous money you had lost. 
+the problem with this strategy is that in real life you may run out of money before you can double your bet.
+The generalization of the probability of this happening--that is the probability of going bankrupt before winning a game--is called the ``gamblers ruin'' problem.
+
+%=================================================================================
+\section{Martingale $\neq$ Markov chain}
+
+The martingale property \eqref{eq:martingale-property} looks superficially similar to the definition of a Markov process, but it's not.
 A Markov process does not need to be a martingale process, and a martingale process does not need to be a Markov process.
 As with Chptr.~\ref{chap:markov-chains}, we only consider discrete martingales--that is martingales where there are discrete jumps in time between states.
+
+To see how a martingale and Markov chain are different, consider a Markov chain $\{\btheta_1,...\}$, with transition probabilities $P\left(\bj|\bi\right)$.
+In order for the Markov chain to be a martingale, it must satisfy
+\begin{align}
+    \sum_{\bj\in S}  \bj P\left(\btheta_{k+1}=\bj|\btheta_{k}=\bi\right) = \bi
+    .
+\end{align}
+Clearly this property is not always satisfied for all Markov chains (for example, consider a biased coin, with absorbing states at heads and tails--only for an unbiased coin will the outcome of the flips be a matingale).
+We conclude that not every Markov chain is a martingale.
+
+One can also show that not every martingale is a Markov chain.
+
+%=================================================================================
+\section{Stopping rules and Wald's equality}
+
+A \textbf{stopping time} for a stochastic process $\btheta_i$ 
 
 %=================================================================================
 \section{Symmetric random walk\label{sec:symmetric-random-walk}}
@@ -88,9 +148,11 @@ We define $\by \equiv \bs - k$, and calculate:
 \begin{align}
     \mathbb{E}\left[\bY_{k+1}|\bY_{k}=\by,\bY_{k-1}=\by_{k-1},...,\bY_1=\by_1\right]
     =&
-    \int d\Omega_{n-1} \left|\bs + \bu\right|^2
-    -
-    \left(k+1\right)
+    \int d\Omega_{n-1} \left(
+        \left|\bs + \bu\right|^2
+        -
+        \left(k+1\right)
+    \right)
     \nonumber\\
     =&
     \left|\bs\right|^2
@@ -108,4 +170,4 @@ We define $\by \equiv \bs - k$, and calculate:
     \by
     .
 \end{align}
-We used that $\mathbb{E}\left[const\right]=const$.
+
