@@ -1,5 +1,47 @@
+The task of \textbf{model comparison} is choosing the model that ``best fits'' the data.
+For parametric models, this usually requires some sort of marginalization of the model parameters.
+We review some ideas that come up in both Bayesian and frequentist model selection.
+
+%==============================================================================
+\section{Hypothesis testing}
+
+\textbf{Hypothesis testing} is arguably a simple form of model comparison.
+As traditionally formulated, we have a hypothesis (model), and we want to know how much the data supports the model.
+That is, we want to compute $P\left(H_0|\bd\right)$, where $H_0$ is the hypothesis and $d$ is the data.
+The default hypothesis $H_0$ is called the \textbf{null hypothesis}.
+To perform a hypothesis, we set some value $0<p<1$, and then compute $P\left(H_0|\bd\right)$.
+If $P\left(H_0|\bd\right)<p$, we \textbf{reject the null hypothesis}, otherwise we \textbf{accept the null hypothesis}.
+The \textbf{alternative hypothesis} to the null hypothesis is called $H_1$, and remains unspecified.
+
+In the frequentist approach to statistics, the null hypothesis is either correct or incorrect.
+If the null is correct, then the test can either (correctly) accept the null hypothesis, or (incorrectly) reject it, given a given data set $\bd$.
+If the null is incorrect, then the test can either (incorrectly) accept the null hypothesis, or (correctly) reject it, given a given data set $\bd$.
+
+The probability of incorrectly rejecting the null hypothesis when it is true is often denote by $\alpha$, that is
+\begin{align}
+    \alpha
+    \equiv
+    P\left(\mathrm{reject}\;H_0|H_0\;\mathrm{is\;true}\right)
+    .
+\end{align}
+Incorrectly rejecting the null hypothesis is called a \textbf{false positive}, or \textbf{type I error}.
+The quantity $1-\alpha$ is called the \textbf{statistical significance} of the test.
+
+The probability of incorrectly accepting the null hypothesis when it is false is often denote by $\beta$, that is
+\begin{align}
+    \beta
+    \equiv
+    P\left(\mathrm{accept}\;H_0|H_0\;\mathrm{is\;false}\right)
+    .
+\end{align}
+Incorrectly accepting the null hypothesis is called a \textbf{false negative}, or \textbf{type II error}.
+The quantity $1-\beta$ is called the \textbf{statistical power} (or \textbf{sensitivity}) of the test.
+
+We now turn to several concepts more commonly used in Bayesian hypothesis testing.
+
 %==============================================================================
 \section{Bayes factor}
+
 
 To briefly review, in \textbf{parameter estimation}, 
 one fintds the best fit parameters from the data given a model $h\left(\theta\right)$.
@@ -12,7 +54,7 @@ which is the ratio of the evidence for each model
     \label{eq:def-Bayes-factor}
     B_{2,1}
     \equiv
-    \frac{P\left(d|H_2\right)}{P\left(d|H_1\right)}
+    \frac{P\left(\bd|H_2\right)}{P\left(\bd|H_1\right)}
     .
 \end{align}
 As a basic rule of thumb, if $B_{2,1}\sim1$, then neither hypothesis is preferred
@@ -24,13 +66,13 @@ If a model $H$ has parameters $\btheta$, we can compute the likelihood
 by marginalizing over the models parameters for the likelihood
 (c.f. ~\eqref{eq:evidence-as-marginalization})
 \begin{align}
-    P\left(d|H\right)
+    P\left(\bd|H\right)
     =
-    \int d\theta P\left(d|\btheta,H\right) P\left(\btheta,H\right)
+    \int d\theta P\left(\bd|\btheta,H\right) P\left(\btheta,H\right)
     .
 \end{align}
 Doing this integral is typically challenging, since the dimension of the
-parameter space is very large, and the likelihood $P\left(d|\btheta,H\right)$
+parameter space is very large, and the likelihood $P\left(\bd|\btheta,H\right)$
 can be complicated (its functional form can only be guessed at in general).
 There are various approximations for how to 
 compute this integral (analytically and numerically).
@@ -47,22 +89,22 @@ We call the rest of the parameters $\btheta$ nuisance parameters,
 as they do not distinguish the two models. 
 In this setup we have that
 \begin{align}
-    P\left(d|\btheta,M_1\right)
+    P\left(\bd|\btheta,M_1\right)
     =
-    P\left(d|\btheta,\lambda=\lambda_0,M_2\right)
+    P\left(\bd|\btheta,\lambda=\lambda_0,M_2\right)
     ,
 \end{align}
 where $\lambda_0$ is a constant.
 
 The evidence of $M_1$ is
 \begin{align}
-    P\left(d|M_1\right)
+    P\left(\bd|M_1\right)
     =&
-    P\left(d|\lambda=\lambda_0,M_2\right)
+    P\left(\bd|\lambda=\lambda_0,M_2\right)
     \nonumber\\
     =&
     \frac{
-        P\left(\lambda=\lambda_0|d,M_2\right)P\left(d|M_2\right)
+        P\left(\lambda=\lambda_0|\bd,M_2\right)P\left(d|M_2\right)
     }{
         P\left(\lambda=\lambda_0|M_2\right)
     } 
@@ -72,7 +114,7 @@ We then see that the Bayes factor is
 \begin{align}
     B_{2,1}
     =&
-    \frac{P\left(d|H_2\right)}{P\left(d|H_1\right)}
+    \frac{P\left(\bd|H_2\right)}{P\left(\bd|H_1\right)}
     \nonumber\\
     =&
     \frac{

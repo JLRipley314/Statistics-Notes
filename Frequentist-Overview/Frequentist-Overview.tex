@@ -1,0 +1,103 @@
+%--------------------------------------------------------------------
+\section{Statistical estimators}
+
+In the Bayesian approach to statistics, we are concerned with the posterior probability distribution for the quantity in question, be it a distribution of models, or a distribution of model parameters, given a specified model.
+There is no concern with what the correct answer is in nature.
+
+By contrast, in frequentist statistics you begin with the assumption that a given model or model parameter has a true, fixed value (at least at some given time and point in space).
+In the frequentist approach, there is uncertainty from data and experiments, but there is no uncertainty in the true (but unknown) value for a given statistical quantity of interest.
+
+For this reason, frequentist statistical methods often revolve around \textbf{statistical estimators}.
+An estimator $\hat{\btheta}\left(\bd\right)$ is a function of the data $\bd$, that is supposed to approximate the true value of the parameter of interest, which we denote by $\btheta_T$.
+
+The \textbf{bias} of an estimator is given by
+\begin{align}
+    \label{eq:estimator-bias-definition}
+    \mathbb{B}\left[\hat{\btheta}\right]
+    &\equiv
+    \mathbb{E}\left[\hat{\btheta} - \btheta_T\right]
+    \nonumber\\
+    &=
+    \mathbb{E}\left[\hat{\btheta}\right] - \btheta_T
+    .
+\end{align}
+Note that $\btheta_T$ is an unbiased estimator to $\btheta_T$, which gives us the second line.
+An \textbf{unbiased estimator} has zero bias--that is the bias vector has all zero components.
+While being unbiased is often useful, biased estimators are often used in practice, as sometimes they can have lower variance than the unbiased estimator (and that can dominate the error of the statistical test).
+
+The sample \textbf{variance} of an estimator is given by
+\begin{align}
+    \label{eq:estimator-variance-definition}
+    \mathbb{V}\left[\hat{\btheta}\right]
+    \equiv
+    \mathbb{E}\left[\left(\hat{\btheta} - \mathbb{E}\left[\hat{\btheta}\right]\right)^2\right]
+    .
+\end{align}
+Notice that the variance is comparing $\hat{\btheta}$ with its mean. 
+This variance essentially measures how much we expect the $\hat{\btheta}$ to vary over different data sets.
+
+Finally, we define the \textbf{mean squared error} of the estimator
+\begin{align}
+    \label{eq:estimator-mse-definition}
+    \mathbb{MSE}\left(\hat{\btheta},\btheta_T\right)
+    \equiv
+    \mathbb{E}\left[\left(\hat{\btheta} - \btheta_T\right)^2\right]
+    .
+\end{align}
+Unlike the variance, the mean squared error compares the average deviation of the estimator from the true value.
+
+The mean squared error can be written in terms of the bias and variance as follows.
+\begin{align}
+    \label{eq:estimator-MSE-bais-variance}
+    \mathbb{MSE}\left(\hat{\btheta},\btheta_T\right)
+    =&
+    \mathbb{E}\left[\left(\hat{\btheta} - \btheta_T\right)^2\right]
+    \nonumber\\
+    =&
+    \mathbb{E}\left[\hat{\btheta}^2\right]
+    +
+    \mathbb{E}\left[\btheta_T^2\right]
+    - 
+    2\mathbb{E}\left[\hat{\btheta}\btheta_T\right]
+    \nonumber\\
+    =&
+    \left(\mathbb{E}\left[
+        \hat{\btheta}^2\right] 
+        - 
+        \left(\mathbb{E}\left[\hat{\btheta}\right]\right)^2
+    \right)
+    +
+    \left(
+        \mathbb{E}\left[\btheta_T^2\right] 
+        - 
+        \left(\mathbb{E}\left[\btheta_T\right]\right)^2
+    \right)
+    \nonumber\\
+    &
+    +
+    \left(
+        \left(\mathbb{E}\left[\hat{\btheta}\right]\right)^2
+        - 
+        2\mathbb{E}\left[\hat{\btheta}\btheta_T\right]
+        +
+        \left(\mathbb{E}\left[\btheta_T\right]\right)^2
+    \right)
+    \nonumber\\
+    =&
+    \mathbb{V}\left[\hat{\btheta}\right]
+    +
+    \mathbb{V}\left[\btheta_T\right]
+    +
+    \left(\mathbb{E}\left[\hat{\btheta}\right] - \btheta_T\right)^2
+    \nonumber\\
+    =&
+    \mathbb{V}\left[\hat{\btheta}\right]
+    +
+    \left(\mathbb{B}\left[\hat{\btheta}\right]\right)^2
+    +
+    \mathbb{V}\left[\btheta_T\right]
+    .
+\end{align}
+We see that the mean squared value of the estimator is equal to the sum of the variance of the estimator, the squared bias of the estimator, and the intrinsic variance of the ``true'' parameter value, $\mathbb{V}\left[\btheta_T\right]$.
+This last quantity we can think of a a noise floor--the M.S.E. can never go below that value.
+If our measure for how ``good'' an estimator is its M.S.E., then \eqref{eq:estimator-MSE-bais-variance} makes it clear that the bias and variance of the estimator are both important quantities to consider.
