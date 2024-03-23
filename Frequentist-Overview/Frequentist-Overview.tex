@@ -1,8 +1,10 @@
-In the Bayesian approach to statistics, we are concerned with the posterior probability distribution for the quantity in question, be it a distribution of models, or a distribution of model parameters, given a specified model.
-There is no concern with what the correct answer is in nature.
-
-By contrast, in frequentist statistics you begin with the assumption that a given model or model parameter has a true, fixed value (at least at some given time and point in space).
-In the frequentist approach, there is uncertainty from data and experiments, but there is no uncertainty in the true (but unknown) value for a given statistical quantity of interest.
+In the Bayesian approach to statistics, you assign probabilities to your hypothesis.
+By contrast, in frequentist statistics you assign probabilities to the data you collect.
+For example, in Bayesian statistics you would ask ``Given the data I've collected, how probable are these model parameters?''.
+In frequentists statistics, you ask ``given this assumption for the model parameters, how probable is it I would have collected this data?''.
+Most of these notes cover more Bayesian-like statistics, but neither approach is inherantly better than the other.
+Here I review some concepts that appear more often in frequentist approaches to statistics.
+Wasserman provides an excellent review of frequentist statistics \cite{wasserman2010statistics}.
 
 %--------------------------------------------------------------------
 \section{Statistical estimators}
@@ -120,6 +122,7 @@ If the null is incorrect, then the test can either (incorrectly) accept the null
 
 The probability of incorrectly rejecting the null hypothesis when it is true is often denote by $\alpha$, that is
 \begin{align}
+    \label{eq:frequentist-def-alpha}
     \alpha
     \equiv
     P\left(\mathrm{reject}\;H_0|H_0\;\mathrm{is\;true}\right)
@@ -130,6 +133,7 @@ The quantity $1-\alpha$ is called the \textbf{statistical significance} of the t
 
 The probability of incorrectly accepting the null hypothesis when it is false is often denote by $\beta$, that is
 \begin{align}
+    \label{eq:frequentist-def-beta}
     \beta
     \equiv
     P\left(\mathrm{accept}\;H_0|H_0\;\mathrm{is\;false}\right)
@@ -141,6 +145,15 @@ The quantity $1-\beta$ is called the \textbf{statistical power} (or \textbf{sens
 
 %==============================================================================
 \section{Confidence intervals}
+
+Here we specialize to scalar statistical quantities for simplicity.
+The \textbf{confidence interval} for a parameter $\theta_T$ is an interval $C_n$ such that
+\begin{align}
+    P\left(\theta_T\in C_n\right) \geq 1 - \alpha
+    .
+\end{align}
+The value $1-\alpha$ is called the \textbf{confidence level} or \textbf{coverage} of the interval.
+Here $\alpha$ is defined in \eqref{eq:frequentist-def-alpha}. 
 
 %==============================================================================
 \section{$p$-values}
