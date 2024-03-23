@@ -3,43 +3,6 @@ For parametric models, this usually requires some sort of marginalization of the
 We review some ideas that come up in both Bayesian and frequentist model selection.
 
 %==============================================================================
-\section{Hypothesis testing}
-
-\textbf{Hypothesis testing} is arguably a simple form of model comparison.
-As traditionally formulated, we have a hypothesis (model), and we want to know how much the data supports the model.
-That is, we want to compute $P\left(H_0|\bd\right)$, where $H_0$ is the hypothesis and $d$ is the data.
-The default hypothesis $H_0$ is called the \textbf{null hypothesis}.
-To perform a hypothesis, we set some value $0<p<1$, and then compute $P\left(H_0|\bd\right)$.
-If $P\left(H_0|\bd\right)<p$, we \textbf{reject the null hypothesis}, otherwise we \textbf{accept the null hypothesis}.
-The \textbf{alternative hypothesis} to the null hypothesis is called $H_1$, and remains unspecified.
-
-In the frequentist approach to statistics, the null hypothesis is either correct or incorrect.
-If the null is correct, then the test can either (correctly) accept the null hypothesis, or (incorrectly) reject it, given a given data set $\bd$.
-If the null is incorrect, then the test can either (incorrectly) accept the null hypothesis, or (correctly) reject it, given a given data set $\bd$.
-
-The probability of incorrectly rejecting the null hypothesis when it is true is often denote by $\alpha$, that is
-\begin{align}
-    \alpha
-    \equiv
-    P\left(\mathrm{reject}\;H_0|H_0\;\mathrm{is\;true}\right)
-    .
-\end{align}
-Incorrectly rejecting the null hypothesis is called a \textbf{false positive}, or \textbf{type I error}.
-The quantity $1-\alpha$ is called the \textbf{statistical significance} of the test.
-
-The probability of incorrectly accepting the null hypothesis when it is false is often denote by $\beta$, that is
-\begin{align}
-    \beta
-    \equiv
-    P\left(\mathrm{accept}\;H_0|H_0\;\mathrm{is\;false}\right)
-    .
-\end{align}
-Incorrectly accepting the null hypothesis is called a \textbf{false negative}, or \textbf{type II error}.
-The quantity $1-\beta$ is called the \textbf{statistical power} (or \textbf{sensitivity}) of the test.
-
-We now turn to several concepts more commonly used in Bayesian hypothesis testing.
-
-%==============================================================================
 \section{Bayes factor}
 
 

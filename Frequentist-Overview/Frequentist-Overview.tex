@@ -1,11 +1,12 @@
-%--------------------------------------------------------------------
-\section{Statistical estimators}
-
 In the Bayesian approach to statistics, we are concerned with the posterior probability distribution for the quantity in question, be it a distribution of models, or a distribution of model parameters, given a specified model.
 There is no concern with what the correct answer is in nature.
 
 By contrast, in frequentist statistics you begin with the assumption that a given model or model parameter has a true, fixed value (at least at some given time and point in space).
 In the frequentist approach, there is uncertainty from data and experiments, but there is no uncertainty in the true (but unknown) value for a given statistical quantity of interest.
+
+%--------------------------------------------------------------------
+\section{Statistical estimators}
+
 
 For this reason, frequentist statistical methods often revolve around \textbf{statistical estimators}.
 An estimator $\hat{\btheta}\left(\bd\right)$ is a function of the data $\bd$, that is supposed to approximate the true value of the parameter of interest, which we denote by $\btheta_T$.
@@ -101,3 +102,58 @@ The mean squared error can be written in terms of the bias and variance as follo
 We see that the mean squared value of the estimator is equal to the sum of the variance of the estimator, the squared bias of the estimator, and the intrinsic variance of the ``true'' parameter value, $\mathbb{V}\left[\btheta_T\right]$.
 This last quantity we can think of a a noise floor--the M.S.E. can never go below that value.
 If our measure for how ``good'' an estimator is its M.S.E., then \eqref{eq:estimator-MSE-bais-variance} makes it clear that the bias and variance of the estimator are both important quantities to consider.
+
+%==============================================================================
+\section{Hypothesis testing}
+
+\textbf{Hypothesis testing} is arguably a simple form of model comparison.
+As traditionally formulated, we have a hypothesis (model), and we want to know how much the data supports the model.
+That is, we want to compute $P\left(H_0|\bd\right)$, where $H_0$ is the hypothesis and $d$ is the data.
+The default hypothesis $H_0$ is called the \textbf{null hypothesis}.
+To perform a hypothesis, we set some value $0<p<1$, and then compute $P\left(H_0|\bd\right)$.
+If $P\left(H_0|\bd\right)<p$, we \textbf{reject the null hypothesis}, otherwise we \textbf{accept the null hypothesis}.
+The \textbf{alternative hypothesis} to the null hypothesis is called $H_1$, and remains unspecified.
+
+In the frequentist approach to statistics, the null hypothesis is either correct or incorrect.
+If the null is correct, then the test can either (correctly) accept the null hypothesis, or (incorrectly) reject it, given a given data set $\bd$.
+If the null is incorrect, then the test can either (incorrectly) accept the null hypothesis, or (correctly) reject it, given a given data set $\bd$.
+
+The probability of incorrectly rejecting the null hypothesis when it is true is often denote by $\alpha$, that is
+\begin{align}
+    \alpha
+    \equiv
+    P\left(\mathrm{reject}\;H_0|H_0\;\mathrm{is\;true}\right)
+    .
+\end{align}
+Incorrectly rejecting the null hypothesis is called a \textbf{false positive}, or \textbf{type I error}.
+The quantity $1-\alpha$ is called the \textbf{statistical significance} of the test.
+
+The probability of incorrectly accepting the null hypothesis when it is false is often denote by $\beta$, that is
+\begin{align}
+    \beta
+    \equiv
+    P\left(\mathrm{accept}\;H_0|H_0\;\mathrm{is\;false}\right)
+    .
+\end{align}
+Incorrectly accepting the null hypothesis is called a \textbf{false negative}, or \textbf{type II error}.
+The quantity $1-\beta$ is called the \textbf{statistical power} (or \textbf{sensitivity}) of the test.
+
+
+%==============================================================================
+\section{Confidence intervals}
+
+%==============================================================================
+\section{$p$-values}
+A \textbf{test statistic} $T\left(\bd\right)$ is a scalar function of the data you collect.
+Many classical test statistics follow some well-known distribution, given an assumption of the distribution from which the data $\bd$ are drawn from.
+In the context of hypothesis testing, good test statistics are sensitive to the nature of the probability distribution you draw data from (the null hypothesis, $H_0$). 
+
+The \textbf{p-value} is the probability that $T$ is greater than or equal to $T\left(\bd\right)$ (the test statistic computed from the observed data), assuming the data are drawn from the null hypothesis $H_0$.
+\begin{align}
+    \label{eq:p-value-definition}
+    p-\mathrm{value}
+    \equiv
+    P\left(T\left(X\right)\geq T\left(\bd\right)|H_0\right)
+    .
+\end{align}
+
