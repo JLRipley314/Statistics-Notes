@@ -347,12 +347,12 @@ we can uniquely map a probability density to its characteristic function and bac
 That is, given a characteristic function, we can find the unique probability
 density that it corresponds to.
 
-Consider a linear affine transformation of the random variable $\bX$,
-which we call $\bY = a\bX + \bb$. We also call $\by = a\bx + \bb$.
-The probability distribution with the volume element remains unchanged 
-$dy f_{\bY}\left(\bx\right)
+Consider a linear transformation of the random variable $\bX$,
+which we call $\bY = A\bX + \bb$. We also call $\by = A\bx + \bb$ (here $A$ is a matrix).
+Note that the probability distribution with the volume element remains unchanged, that is 
+$d^ky f_{\bY}\left(\by\right)
     =
-    dx f_{\bX}\left(\bx\right)
+    d^kx f_{\bX}\left(\bx\right)
     $.
 We conclude that
 \begin{align}
@@ -361,14 +361,14 @@ We conclude that
     \int_{-\infty}^{\infty} d^ky e^{i\bt^T\by} f_{\bY}\left(\by\right)
     \nonumber\\
     =&
-    e^{i\bt^T\bb}\int_{-\infty}^{\infty} d^kx e^{ia\bt^T\bx} f_{\bX}\left(\bx\right)
+    e^{i\bt^T\bb}\int_{-\infty}^{\infty} d^kx e^{i\bt^TA\bx} f_{\bX}\left(\bx\right)
     \nonumber\\
     =&
-    e^{i\bt^T\bb}\psi_{\bX}\left(at\right)
+    e^{i\bt^T\bb}\psi_{\bX}\left(A^T\bt\right)
     .
 \end{align}
-The characteristic function of a sum of independent variables 
-is the product of the characteristic function for each variable.
+The last line follows from $\bt^TA\bx = \left(A\bt\right)^T\bx$.
+The characteristic function of a sum of independent variables is the product of the characteristic function for each variable.
 Define $\bY = \sum_{i=1}^n \bX_i$, we then have
 \begin{align}
     \psi_{\bY}\left(\bt\right)
@@ -448,9 +448,7 @@ We used the identity
     \lim_{n\to\infty}\left(1+\frac{a}{n}\right)^n = e^a
     .
 \end{align}
-to leading order, the last line of \eqref{eq:central-limit-steps} is the
-characteristic function for $N_k\left(\bmu,\tilde{\bSigma}\right)$
-(see \eqref{eq:characteristic-function-multivariate-normal}).
+To leading order, the last line of \eqref{eq:central-limit-steps} is the characteristic function for $N_k\left(\bmu,\tilde{\bSigma}\right)$ (see \eqref{eq:characteristic-function-multivariate-normal}).
 This concludes the proof.
 
 %===============================================================================

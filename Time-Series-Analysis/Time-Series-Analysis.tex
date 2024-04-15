@@ -1,14 +1,12 @@
-We consider the problem of determining the signal from a data timestream.
-Calling the data $x(t)$, we then want to find a signal $s(t)$ given noise
-$n(t)$, where
+We consider the problem of measuring/extracting a signal from a noisy data timestream.
+Calling the data $x(t)$, we then want to find a signal $s(t)$ given noise $n(t)$, where
 \begin{align}
     \label{eq:x-signal-n}
     x\left(t\right) = s\left(t\right) + n\left(t\right)
     .
 \end{align}
-We model the noise $n(t)$ can be modeled as a \textbf{stochastic process}
-(which implies that $x(t)$ is a stochastic process)
-We assume $x,s,n$ are all real functions.
+We assume $x,s,n$ are all real or complex scalarfunctions.
+The noise $n(t)$ can be modeled as a \textbf{stochastic process} (which implies that $x(t)$ is a stochastic process)
 Our main goal is to derive the likelihood function for a time series of the form
 \eqref{eq:x-signal-n} when $n$ takes the form of colored stationary noise, and
 to derive the matched filtering theorem.
@@ -16,13 +14,11 @@ to derive the matched filtering theorem.
 %===============================================================================
 \section{Basic definitions}
 
-A function $n(t)$ is a \textbf{stochastic process}, 
-if $n(t)$ is a random variable at each time $t$ that is described by some probability distribution.
+A function $n(t)$ is a \textbf{stochastic process}, if $n(t)$ is a random variable at each time $t$.
+That is, at each time $t$ we essentially draw $n(t)$ from a probability distribution.
 This probability distribution may depend on $t$, and the previous history of values of $x$, for example.
-If $t$ is a discrete variable, and the probability distribution for $n(t_i)$ depends on
-$n(t_{i-1})$, then $n(t_i)$ is a \textbf{Markov chain}.
-If the probability distribution for $n(t)$ is independent of $t$, then $n(t)$
-is a \textbf{stationary process}.
+If $t$ is a discrete variable, and the probability distribution for $n(t_i)$ depends on $n(t_{i-1})$, then $n(t_i)$ is a \textbf{Markov chain}.
+If the probability distribution for $n(t)$ is independent of $t$, then $n(t)$ is a \textbf{stationary process}.
 
 %===============================================================================
 \section{Correlation and covariance}
@@ -43,6 +39,15 @@ We define the \textbf{autocovariance} for a stocahstic process to be
     K_{x}\left(t_1,t_2\right)
     \equiv
     C_{xx}\left(t_1,t_2\right)
+    .
+\end{align}
+We define the \textbf{correlation} for a stochastic process to be 
+\begin{align}
+    R_{x_1,x_2}\left(t_1,t_2\right)
+    \equiv
+    \mathbb{E}\left[x_1\left(t_1\right)x_2^*\left(t_2\right)\right]
+    =
+    K_{x} + \mu_x^2
     .
 \end{align}
 We define the \textbf{autocorrelation} for a stochastic process to be
@@ -76,22 +81,49 @@ We define the \textbf{energy spectral density} to be
 %===============================================================================
 \section{Stationary and weak-sense stationary stochastic processes}
 
-A stochastic process is said to be \textbf{stationary} if its joint probability
-distribution does not change under time shifts. 
-A stochastic process is said to be \textbf{weak-sense stationary (WSS)}
-(or \textbf{wide-sense stationary}), then its first moment is independent of time,
-and if its autocorrelation function depends only on $\tau=t_1-t_2$.
-For a WSS process we can write
+A stochastic process is said to be \textbf{stationary} (or \textbf{strict-sense stationary}) if its joint probability distribution does not change under time shifts. 
+That is, 
 \begin{align}
+    f_{X\left(t_1\right)}\left(x\right)
+    =
+    f_{X\left(t_1+\Delta t\right)}\left(x\right)
+    \qquad
+    \forall \Delta t
+    .
+\end{align}
+Said another way, $X\left(t+\Delta t\right) \sim X\left(t\right)$.
+
+A stochastic process is said to be \textbf{weak-sense stationary (WSS)} (or \textbf{wide-sense stationary}) if 
+\begin{align}
+    \mathbb{E}\left[X\left(t_1\right)\right]
+    =&
+    \mathbb{E}\left[X\left(t_2\right)\right]
+    &
+    \forall t_1,t_2
+    ,\\
+    \mathbb{E}\left[X\left(t_1\right)X\left(t_2\right)\right]
+    =&
+    \mathbb{E}\left[X\left(t_3\right)X\left(t_4\right)\right]
+    &
+    \forall t_1,t_2, t_3, t_4
+    .
+\end{align}
+
+That is, for a WSS process we have
+\begin{align}
+    \label{eq:WSS-mean}
+    \mathbb{E}\left[X\left(t_1\right)\right]
+    =&
+    \mu_X
+    ,\\
     \label{eq:WSS-autocorrelation}
     R_x\left(\tau\right) 
-    =
+    =&
     \mathbb{E}\left[x\left(t+\tau\right)x^*\left(t\right)\right]
     ,
 \end{align}
-where $t$ is arbitrary.
-For a WSS/stationary process, we can write the expectation of $x$ at a given instant as 
-the average of $x$ over all time 
+where $\mu_X$ is independent of time.
+For a WSS/stationary process, we can write the expectation of $x$ at a given instant as the average of $x$ over all time 
 \begin{align}
     \mathbb{E}\left[x\right]
     =
