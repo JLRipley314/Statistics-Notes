@@ -58,7 +58,7 @@ For example, we may be interested in the expectation of $\btheta$ and its covari
 \end{subequations}
 We cover methods to compute high dimensional integrals, as in many applications $k\gg1$ (or at least, $k\gtrsim10$).
 In this regime, it is usually computationally infeasible to compute \eqref{eq:evidence} using traditional deterministic methods such as the trapezoid rule or Gaussian quadrature.
-For example if $k=10$, and if we have $10$ quadrature points in each parameter direction, we will need to make $N\gtrsim 10^{10}$ evaluations for a trapsoid rule approximation ot the evidence.
+For example if $k=10$, and if we have $10$ quadrature points in each parameter direction, we will need to make $N\gtrsim 10^{10}$ evaluations for a trapsoid rule approximation of the evidence.
 The likelihood function is often a highly complex function with sharp peaks,
 so many more than $10$ grid points would be needed to resolve in each direction
 in order to properly resolve the posterior.
@@ -162,7 +162,7 @@ This is the key property of stochastic integration methods, and what makes them
 widespread use in computing high dimensional integrals.
 In one dimension, almost any other quadrature method outperforms Monte Carlo integration 
 (for example, the error to the trapezoid rule scales as $1/N^2$),
-but for higher dimensional integrals the convergence of most methods rapidly deteriorates.
+but for higher dimensional integrals the convergence of most methods other than Monte-Carlo-like integration rapidly deteriorates.
 
 We can think of Monte Carlo integration as an example of a stochastic approximation
 to the Riemann integral of $f$.
@@ -180,21 +180,11 @@ In effect, in Monte Carlo integration we approximate $V\left(\btheta_i\right)$
 with $n/N$, where $n$ is the number of draws we made in that volume.
 
 Monte Carlo integration works best if most of the integral $I$ is not concentrated in a few small volume regions; that is if $f\left(\btheta\right)$ is not too ``peaked''.
-Most likelihoods are strongly peaked though--for example from the
-Bernstein–von Mises theorem (see Appendix \ref{chap:probability-theory})
-we expect the likelihood to approximately behave as a multivariate normal function 
-around the maximum likelihood estimator as the amount of data we collect
-goes to infinity. 
-Moreover the covariance matrix elements scale as $1/N_d$, where $N_d$ is the
-number of data points, so the distribution becomes increasingly localized
-near the maximum likelihood estimator, and more generally near other local
-maxima of the likelihood.
-That is, selecting $\btheta_i$ from the uniform distribution could mean that
-we are mostly sampling from places where $f\left(\btheta_i\right)$ is much smaller
-than near the peaks. 
-In that case, we would be missing most what contributes to the integral
-\eqref{eq:integral-f-monte-carlo}, which slows down the rate of convergence
-(the prefactor in front of the asymptotic scaling of $1/\sqrt{N}$).
+This is because we sample \emph{uniformly} across the parameter region for $\btheta$.
+This would be wasteful if for most samples, $f\left(\btheta_i\right)\ll1$, so that most samples do no contribute much to the integral.
+For strongly peaked $f\left(\btheta\right)$ uniform sampling would effectively means that the prefactor in the convergence scaling ($1/\sqrt{N}$)) is larger.
+Most likelihoods are strongly peaked though--for example from the Bernstein–von Mises theorem (see Appendix \ref{chap:probability-theory}) we expect the likelihood to approximately behave as a multivariate normal function around the maximum likelihood estimator as the amount of data we collect goes to infinity. 
+Moreover the covariance matrix elements scale as $1/N_d$, where $N_d$ is the number of data points, so the distribution becomes increasingly localized near the maximum likelihood estimator, and more generally near other local maxima of the likelihood.
 
 This motivates the introduction of integrations methods that preferentially sample
 from regions near the local maxima of the integrand in 
@@ -209,7 +199,7 @@ our model $P\left(\bx|\btheta\right)$ are smooth--there
 is no substantive, practical difference between the Riemann and Lebesgue integral.
 Nevertheless we will see that there are different strengths and weaknesses
 to MCMC and nested sampling, 
-unrelated to the kinds of integrals they are approximating.} 
+unrelated to the method of integration they are approximating.} 
 
 %==============================================================================
 \section{Markov chain Monte Carlo (MCMC)\label{sec:mcmc}}
@@ -242,7 +232,7 @@ We can view \eqref{eq:MCMC-integral} as a Riemann-Stieltjes integral,
     ,
 \end{align}
 with the measure $dF\left(\btheta\right) \equiv d^k\theta p\left(\btheta\right)$.
-We defined
+We next define
 \begin{align}
     \label{eq:F-RS-int}
     F\left(\lambda\right)
@@ -252,8 +242,7 @@ We defined
 \end{align}
 
 Properly speaking, MCMC is a method for drawing samples from $p\left(\btheta\right)$, for use in calculating integrals of the form \eqref{eq:MCMC-integral}.
-It turns out that a histogram of our sampling of $p\left(\btheta\right)$ will
-begin to resemble $p\left(\btheta\right)$ as the number of draws goes to infinity.
+It turns out that a histogram of our sampling of $p\left(\btheta\right)$ will begin to resemble $p\left(\btheta\right)$ as the number of draws goes to infinity.
 For this reason, MCMC methods are often seen as ways to determine the ``shape''
 or functional properties of $p\left(\btheta\right)$.
 Here we take the perspective of numerical integration theory, so we think of 
@@ -265,12 +254,9 @@ We will only consider Markov chains with \textbf{stationary transition probabili
 Operationally, MCMC integration of \eqref{eq:integral-f-monte-carlo}
 goes as follows.
 \begin{enumerate}
-    \item We pick an initial point $\btheta_1$, and then generate new samples
-        $\btheta_n$ based on a suitably chosen transition probability.
-    \item For the first few iterations of the Markov Chain, the points $\btheta_n$
-        will be highly correlated with our initial start point, but if one runs the
-        Markov Chain for enough iterations, the points $\{\btheta_n\}$ will eventually
-        converge to the target distribution $p\left(\btheta\right)$.
+    \item We pick an initial point $\btheta_1$, and then generate new samples $\btheta_n$ through a Markov Chain with a suitably chosen transition probability $P\left(\btheta_{n+1}|\btheta_n\right)$.
+    \item For the first few iterations of the Markov Chain, the generated points $\{\btheta_i\}$ will be highly correlated with our initial start point, but if one runs the Markov Chain for enough iterations, the points eventually become essentially uncorrelated with the initial start point $\btheta_1$.
+        Eventually the histogram of the generated points $\{\btheta_i\}$ will converge to the target distribution $p\left(\btheta\right)$.
     \item Integration then proceeds as in Monte Carlo integration
         \begin{align}
             \label{eq:mcmc-integral-sum}
@@ -279,13 +265,11 @@ goes as follows.
             \frac{1}{N}\sum_{i=1}^N g\left(\btheta_i\right)
             ,
         \end{align}
-        with similar convergence properties to Monte Carlo integration 
-        (the error will asymptotically go does as $1/\sqrt{N}$).
-        The hope though is that the prefactor to the leading asymptotic decay will be
-        much smaller than it would be for regular Monte Carlo integration.
+        with similar convergence properties to Monte Carlo integration (the error will asymptotically go does as $1/\sqrt{N}$).
+        The hope though is that the prefactor to the leading asymptotic decay will be much smaller than it would be for regular Monte Carlo integration, because we will have sampled more densely from regions where $p\left(\btheta\right)$ is larger.
 \end{enumerate}
-We see that we can view \eqref{eq:mcmc-integral-sum} as an approximation to the
-Riemann–Stieltjes integral \eqref{eq:riemann-steiltjes-integral}.
+Clearly the relative success of MCMC integration vs Monte-Carlo integration rides on the choice of the transition probability in the Markov chain.
+We also see that we can view \eqref{eq:mcmc-integral-sum} as an approximation to the Riemann–Stieltjes integral \eqref{eq:riemann-steiltjes-integral}.
 
 There are whole volumes on MCMC (e.g. \cite{brooks2011handbook}); 
 for a nice shorter review see \cite{Hogg:2017akh}.
@@ -307,13 +291,10 @@ transition probabilities must satisfy the \textbf{detailed balance} condition
 for any $\btheta,\bpsi$. 
 To see why detailed balance implies stationarity, we compute the probability
 of a transition to new step $\btheta_n$. 
-The probability distribution for a new step $\btheta$ is equal to the
-integral (or sum, if there a discrete number of points)
-over all possible earlier points $\psi$.
-We assume those are distributed according to the probability distribution
-$Q\left(\bpsi\right)$. We then show that the distribution for $\btheta$,
-$P\left(\btheta\right)$, is equal to $Q\left(\btheta\right)$, which
-implies that the chain is stationary. We have
+The probability distribution for a new step $\btheta_n$ is equal to the integral (or sum, if there a discrete number of points) over all possible earlier points $\psi$, multiplied by their transition probability to $\btheta_n$.
+We assume that the points $\bpsi$ are distributed according to the probability distribution $Q\left(\bpsi\right)$. 
+We then show that the distribution for $\btheta$, $P\left(\btheta\right)$, is equal to $Q\left(\btheta\right)$, which implies that the chain is stationary.
+We have
 \begin{align}
     P\left(\btheta\right)
     &=
@@ -330,15 +311,10 @@ implies that the chain is stationary. We have
     Q\left(\btheta\right)
     .
 \end{align}
-This proves existence of a stationary chain, but it does not prove uniqueness.
-Proving uniqueness of the stationary distribution is beyond the scope of these notes.
-Most practitioners simply ignore the question of uniqueness.
+This argument proves existence of a stationary chain, but it does not prove uniqueness, nor does it prove that you will eventually reach a stationary distribution from any given starting point.
+Those issues are beyond the scope of these notes.
 
-Finally, we discuss an example of a Markov Chain that satisfies 
-the detailed balance
-condition for the target function $p\left(\btheta\right)$
-(lower case $p$; see \eqref{eq:MCMC-integral}):
-the \textbf{Metropolis-Hastings algorithm}.
+Finally, we discuss an example of a Markov Chain that satisfies  the detailed balance condition for the target function $p\left(\btheta\right)$ (lower case $p$; see \eqref{eq:MCMC-integral}): the \textbf{Metropolis-Hastings algorithm}.
 Consider a point $\btheta$.
 We draw $\bpsi$ from the \textbf{proposal probability} $Q\left(\bpsi|\btheta\right)$
 (we are free to specify $Q$).
@@ -349,16 +325,13 @@ We then draw a random variable $x$ from the uniform distribution $U\left(0,1\rig
     =
     \min\left(
         1,
-        \frac{p\left(\btheta\right)}{p\left(\bpsi\right)}
+        \frac{p\left(\bpsi\right)}{p\left(\btheta\right)}
         \frac{Q\left(\btheta|\bpsi\right)}{Q\left(\bpsi|\btheta\right)}
     \right)
     .
 \end{align}
 If $x>r$, we jump to the point $\bpsi$, otherwise, we stay at the point $\btheta$.
-To prove that transition probability in the 
-Metropolis-Hastings algorithm satisfies the detailed balance condition, 
-we rewrite the transition probability amplitude as being equal to
-the proposal probability times the acceptance probability
+To prove that transition the probability in the Metropolis-Hastings algorithm satisfies the detailed balance condition, we rewrite the transition probability amplitude as being equal to the proposal probability times the acceptance probability
 \begin{align}
     P\left(\bpsi|\btheta\right)
     =
@@ -367,25 +340,26 @@ the proposal probability times the acceptance probability
 \end{align}
 We then have
 \begin{align}
-    P\left(\btheta|\bpsi\right)p\left(\bpsi\right)
-    &=
-    \min\left(
-        p\left(\bpsi\right)Q\left(\bpsi|\btheta\right)
-        ,
-        p\left(\btheta\right)Q\left(\btheta|\bpsi\right)
-    \right)
-    \nonumber\\
-    &=
-    \min\left(
-        p\left(\btheta\right)Q\left(\btheta|\bpsi\right)
-        ,
-        p\left(\bpsi\right)Q\left(\bpsi|\btheta\right)
-    \right)
-    \nonumber\\
-    &=
     P\left(\bpsi|\btheta\right)p\left(\btheta\right)
+    &=
+    \min\left(
+        p\left(\btheta\right)Q\left(\bpsi|\btheta\right)
+        ,
+        p\left(\bpsi\right)Q\left(\btheta|\bpsi\right)
+    \right)
+    \nonumber\\
+    &=
+    \min\left(
+        p\left(\bpsi\right)Q\left(\btheta|\bpsi\right)
+        ,
+        p\left(\btheta\right)Q\left(\bpsi|\btheta\right)
+    \right)
+    \nonumber\\
+    &=
+    P\left(\btheta|\bpsi\right)p\left(\bpsi\right)
     .
 \end{align}
+We conclude the Metropolis-Hastings proposal obeys the detailed balance condition.
 
 %==============================================================================
 \section{Nested sampling\label{sec:nested-sampling}}
@@ -398,13 +372,8 @@ As with MCMC integration, we consider integrals of the form
     \int d^k\theta p\left(\btheta\right) L\left(\btheta\right)
     .
 \end{align}
-We can only integrate positive definite functions with the nested sampling algorithm, 
-which is why we use the slightly different notation of $L$ instead of $g$ here: 
-we restrict to functions such that $L\geq0$.
-This notation is motivated from the following:
-the main application of the nested sampling integration is to compute the evidence 
-$\mathcal{Z}$,
-which is an integral of the prior probability distribution times the likelihood
+We can only integrate positive definite functions with the nested sampling algorithm, which is why we use the slightly different notation of $L$ instead of $g$ here: we restrict to functions such that $L\geq0$.
+This notation is motivated from the following: the main application of nested sampling integration is to compute the evidence $\mathcal{Z}$, which is an integral of the prior probability distribution times the likelihood
 \begin{align}
     \mathcal{Z}
     =
@@ -462,16 +431,9 @@ Unlike \eqref{eq:integral-nested-ptheta}, \eqref{eq:integral-nested-X}
 is a one-dimensional integral. 
 In \eqref{eq:integral-nested-X} we should think of $L$ as the parameter
 in $X\left(L\right)$, not as $L\left(\btheta\right)$.
-Nested sampling provides a noisy approximation to \eqref{eq:integral-nested-X},
-through a partitioning of the $X$ interval, and hence provides a noisy approximation
-to the Lebesgue integral of \eqref{eq:integral-nested-ptheta}.
+Nested sampling provides a noisy approximation to \eqref{eq:integral-nested-X}, through a partitioning of the $X$ interval, and hence provides a noisy approximation to \eqref{eq:integral-nested-ptheta}.
 
-To understand why \eqref{eq:integral-nested-X} 
-is the Lebesgue integral of \eqref{eq:integral-nested-ptheta},
-recall that the Lebesgue integral is the limit of the sum over 
-$g_i\equiv g\left(\btheta_i\right)$
-multiplied by the Lebesgue measure of the set $E_i$ of points $\btheta_j$ for which
-$g\left(\btheta_j\right)\approx g\left(\btheta_i\right)$
+To understand why \eqref{eq:integral-nested-X} is the Lebesgue integral of \eqref{eq:integral-nested-ptheta}, recall that the Lebesgue integral is the limit of the sum over $g_i\equiv g\left(\btheta_i\right)$ multiplied by the Lebesgue measure of the set $E_i$ of points $\btheta_j$ for which $g\left(\btheta_j\right)\approx g\left(\btheta_i\right)$
 \begin{align}
     \label{eq:lebesgue-sum}
     I_N
@@ -483,10 +445,9 @@ We can think of $g_i \mu\left(E_i\right)$ as the discretization of $dX \lambda\l
 
 The nested sampling algorithm goes as follow
 \begin{enumerate}
-    \item We draw $n$ points $\btheta_i$ from $p\left(\btheta\right)$, treating
-        it as a probability distribution. Set $X_0=1$.
-    \item Repeat for $N$ times, so you have the sequence $X_1,...,X_n$ and
-        $L_{min,1},...,L_{min,N}$. For the $j^{th}$ iteration
+    \item We draw $n$ points $\btheta_i$ from $p\left(\btheta\right)$, treating it as a probability distribution. 
+        Set $X_0=1$.
+    \item Repeat this $N$ times, so you have the sequence $X_1,...,X_n$ and $L_{min,1},...,L_{min,N}$. For the $j^{th}$ iteration
     \begin{enumerate}
         \item Record the lowest value of $=L_{min,j}=L\left(\btheta_j\right)$. 
             Set $X_j = e^{-j/n}$, or alternatively set $X_j = t_j X_{j-1}$, where
@@ -513,7 +474,7 @@ In the context of Bayes rule, where $I_N$ is our estimate of the evidence $\math
 \end{align}
 
 One of the tricky things to understand about the nested sampling method is the value of the measure of the likelihood $L_{min,i}$, $X_i$.
-Consider a sample from $p\left(\btheta\right)$: $\left\{\theta_j\right\}$, subject to
+Consider a sample from $p\left(\btheta\right)$: $\left\{\btheta_j\right\}$, subject to
 $L\left(\btheta_j\right)>L_{min,j-1}$. 
 So long as we draw $\btheta_j$ from $p\left(\btheta\right)$
 subject to to the constraint $L\left(\btheta\right)>L_j$,
